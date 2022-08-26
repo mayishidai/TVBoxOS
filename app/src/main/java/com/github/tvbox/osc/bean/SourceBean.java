@@ -6,7 +6,7 @@ public class SourceBean {
     private String key;
     private String name;
     private String api;
-    private int type;   // 0 xml 1 json 3 Spider
+    private int type;   // 0 xml 1 json 3 Spider 4
     private int searchable; // 是否可搜索
     private int quickSearch; // 是否可以快速搜索
     private int filterable; // 可筛选?

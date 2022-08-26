@@ -39,6 +39,7 @@ import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -241,8 +242,22 @@ public class SourceViewModel extends ViewModel {
                 @Override
                 public void run() {
                     try {
+                        HashMap<String, String> filterSelect = new HashMap<String,String>();
+                        if (!sortData.filters.isEmpty())
+                        {
+                            for (MovieSort.SortFilter filter : sortData.filters)
+                            {
+                                String xx = sortData.filterSelect.get(filter.key);
+                                if (sortData.filterSelect.get(filter.key)!=null )
+                                    filterSelect.put(filter.key, sortData.filterSelect.get(filter.key));
+                                else {
+                                    ArrayList<String> values = new ArrayList<String>(filter.values.values());
+                                    filterSelect.put(filter.key, values.get(0));
+                                }
+                            }
+                        }
                         Spider sp = ApiConfig.get().getCSP(homeSourceBean);
-                        json(listResult, sp.categoryContent(sortData.id, page + "", true, sortData.filterSelect), homeSourceBean.getKey());
+                        json(listResult, sp.categoryContent(sortData.id, page + "", true, filterSelect), homeSourceBean.getKey());
                     } catch (Throwable th) {
                         th.printStackTrace();
                     }

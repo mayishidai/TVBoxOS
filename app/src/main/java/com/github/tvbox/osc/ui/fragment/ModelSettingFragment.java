@@ -61,6 +61,7 @@ public class ModelSettingFragment extends BaseLazyFragment {
     private TextView tvHistoryNum;
     private TextView tvSearchView;
     private TextView tvShowPreviewText;
+    private TextView tvShowWallpaperIndexText;
 
     public static ModelSettingFragment newInstance() {
         return new ModelSettingFragment().setArguments();
@@ -91,6 +92,7 @@ public class ModelSettingFragment extends BaseLazyFragment {
         tvHomeRec = findViewById(R.id.tvHomeRec);
         tvHistoryNum = findViewById(R.id.tvHistoryNum);
         tvSearchView = findViewById(R.id.tvSearchView);
+        tvShowWallpaperIndexText = findViewById(R.id.showWallpaperIndex);
         tvMediaCodec.setText(Hawk.get(HawkConfig.IJK_CODEC, ""));
         tvDebugOpen.setText(Hawk.get(HawkConfig.DEBUG_OPEN, false) ? "已打开" : "已关闭");
         tvParseWebView.setText(Hawk.get(HawkConfig.PARSE_WEBVIEW, true) ? "系统自带" : "XWalkView");
@@ -103,6 +105,7 @@ public class ModelSettingFragment extends BaseLazyFragment {
         tvScale.setText(PlayerHelper.getScaleName(Hawk.get(HawkConfig.PLAY_SCALE, 0)));
         tvPlay.setText(PlayerHelper.getPlayerName(Hawk.get(HawkConfig.PLAY_TYPE, 0)));
         tvRender.setText(PlayerHelper.getRenderName(Hawk.get(HawkConfig.PLAY_RENDER, 0)));
+        tvShowWallpaperIndexText.setText(ApiConfig.get().getShowWallpaperIndex());
         findViewById(R.id.llDebug).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -150,10 +153,12 @@ public class ModelSettingFragment extends BaseLazyFragment {
             @Override
             public void onClick(View v) {
                 FastClickCheckUtil.check(v);
-                if (!ApiConfig.get().wallpaper.isEmpty())
-                    OkGo.<File>get(ApiConfig.get().wallpaper).execute(new FileCallback(requireActivity().getFilesDir().getAbsolutePath(), "wp") {
+                if (!ApiConfig.get().getWallpaperList().isEmpty())
+                    //OkGo.<File>get(ApiConfig.get().wallpaper.get()).execute(new FileCallback(requireActivity().getFilesDir().getAbsolutePath(), "wp") {
+                    OkGo.<File>get(ApiConfig.get().getNextWallpaperString()).execute(new FileCallback(requireActivity().getFilesDir().getAbsolutePath(), "wp") {
                         @Override
                         public void onSuccess(Response<File> response) {
+                            tvShowWallpaperIndexText.setText(ApiConfig.get().getShowWallpaperIndex());
                             ((BaseActivity) requireActivity()).changeWallpaper(true);
                         }
 
@@ -176,6 +181,8 @@ public class ModelSettingFragment extends BaseLazyFragment {
                 File wp = new File(requireActivity().getFilesDir().getAbsolutePath() + "/wp");
                 if (wp.exists())
                     wp.delete();
+                ApiConfig.get().setWallpaperIndex(-1);
+                tvShowWallpaperIndexText.setText(ApiConfig.get().getShowWallpaperIndex());
                 ((BaseActivity) requireActivity()).changeWallpaper(true);
             }
         });
