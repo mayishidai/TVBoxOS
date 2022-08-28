@@ -97,3 +97,16 @@ dependencies {
 
     implementation 'com.github.getActivity:XXPermissions:13.6'
 }
+
+
+android.applicationVariants.all {
+    variant ->
+        variant.outputs.all { output ->
+            def date = new Date().format("yyyy年MM月dd日", TimeZone.getTimeZone("GMT+08"))
+            if (variant.buildType.name == 'debug'){
+                output.outputFileName = "tvbox_${android.defaultConfig.versionName}_${date}_debug.apk"
+            }else if (variant.buildType.name == 'release'){
+                output.outputFileName = "tvbox_${date}.apk"
+            }
+        }
+}

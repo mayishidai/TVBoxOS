@@ -219,9 +219,9 @@ public class HomeActivity extends BaseActivity {
             showLoading();
             sourceViewModel.getSort(ApiConfig.get().getHomeSourceBean().getKey());
             if (hasPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-                LOG.e("有");
+                LOG.e("有存储权限");
             } else {
-                LOG.e("无");
+                LOG.e("无存储权限");
             }
             return;
         }
@@ -377,7 +377,8 @@ public class HomeActivity extends BaseActivity {
             mViewPager.setPageTransformer(true, new DefaultTransformer());
             mViewPager.setAdapter(pageAdapter);
             mViewPager.setCurrentItem(currentSelected, false);
-        }
+        }else
+            LOG.e("HomeActivity：initViewPager 没有查询到视频分页数据");
     }
 
     @Override

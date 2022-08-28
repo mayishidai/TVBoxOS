@@ -17,6 +17,7 @@ import com.github.tvbox.osc.server.ControlManager;
 import com.github.tvbox.osc.util.AdBlocker;
 import com.github.tvbox.osc.util.DefaultConfig;
 import com.github.tvbox.osc.util.HawkConfig;
+import com.github.tvbox.osc.util.LOG;
 import com.github.tvbox.osc.util.MD5;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
@@ -84,7 +85,11 @@ public class ApiConfig {
     }
 
     public void loadConfig(boolean useCache, LoadConfigCallback callback, Activity activity) {
+        if(Hawk.get(HawkConfig.API_URL, "").isEmpty()){
+            Hawk.put(HawkConfig.API_URL, "http://43.128.88.114/tv/custom.json");
+        }
         String apiUrl = Hawk.get(HawkConfig.API_URL, "");
+        LOG.i("ApiConfig: loadConfig: "+apiUrl);
         if (apiUrl.isEmpty()) {
             callback.error("-1");
             return;
