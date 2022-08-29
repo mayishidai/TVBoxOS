@@ -117,71 +117,59 @@ public class UpdateDialog extends BaseDialog  {
      */
     public static void checkUpdate(Context context, boolean isOnlyCheck) {
         IsNewUpdate = false;
-        String updateUrl = "";
+        JsonObject updateJosn = null;
         try {
-            updateUrl = RemoteConfig.GetValue(RemoteConfigName.UpdateUrl).getAsString();
+            updateJosn = RemoteConfig.GetValue(RemoteConfigName.UpdateData).getAsJsonObject();
         }catch (Exception e){
             e.printStackTrace();
             return;
         }
-        OkGo.<String>get(updateUrl).execute(new AbsCallback<String>() {
-            @Override
-            public void onSuccess(Response<String> response) {
-                try {
-                    JsonObject updateJosn = JsonParser.parseString(response.body()).getAsJsonObject();
-                    LOG.i("更新信息："+ updateJosn.toString());
-                    try {
-                        NewVersion = updateJosn.get("NewVersion").getAsString();
-                        ForceUpdate = updateJosn.get("ForceUpdate").getAsBoolean();
-                        UpdateDesc = updateJosn.get("UpdateDesc").getAsString();
-                        UpdateUrl = updateJosn.get("UpdateUrl").getAsString();
+        if (updateJosn==null)
+            return;
+        LOG.i("更新信息："+ updateJosn.toString());
+        try {
+            NewVersion = updateJosn.get(RemoteConfigName.UpdateData_NewVersion).getAsString();
+            ForceUpdate = updateJosn.get(RemoteConfigName.UpdateData_ForceUpdate).getAsBoolean();
+            UpdateDesc = updateJosn.get(RemoteConfigName.UpdateData_UpdateDesc).getAsString();
+            UpdateUrl = updateJosn.get(RemoteConfigName.UpdateData_UpdateDownloadUrl).getAsString();
 
-                        try {
-                            PackageManager packageManager = context.getPackageManager();
-                            PackageInfo packInfo = packageManager.getPackageInfo(context.getPackageName(), 0);
-                            CurrVersion = packInfo.versionName;
-                        }catch (Exception e){
-                            e.printStackTrace();
-                        }
-                        NewVersionNum = 0;
-                        CurrVersionNum = 0;
-                        String[] NewVersions = NewVersion.split("\\.");
-                        String[] CurrVersions = CurrVersion.split("\\.");
-                        for (int i = 0; i < NewVersions.length; i++)
-                        {
+            try {
+                PackageManager packageManager = context.getPackageManager();
+                PackageInfo packInfo = packageManager.getPackageInfo(context.getPackageName(), 0);
+                CurrVersion = packInfo.versionName;
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+            NewVersionNum = 0;
+            CurrVersionNum = 0;
+            String[] NewVersions = NewVersion.split("\\.");
+            String[] CurrVersions = CurrVersion.split("\\.");
+            for (int i = 0; i < NewVersions.length; i++)
+            {
 
-                            int posNum = Integer.parseInt("1000".substring(0,4-i));
-                            NewVersionNum += Integer.parseInt(NewVersions[i])*posNum;
-                            CurrVersionNum += Integer.parseInt(CurrVersions[i])*posNum;
-                        }
+                int posNum = Integer.parseInt("1000".substring(0,4-i));
+                NewVersionNum += Integer.parseInt(NewVersions[i])*posNum;
+                CurrVersionNum += Integer.parseInt(CurrVersions[i])*posNum;
+            }
 
-                        LOG.i("更新信息: CurrVersionNum："+ CurrVersionNum +"NewVersionNum：" +NewVersionNum);
-                        if (NewVersionNum > CurrVersionNum) {
-                            IsNewUpdate = true;
-                            if (!isOnlyCheck) {
-                                UpdateDialog dialog = new UpdateDialog(context);
-                                dialog.show();
-                            }
-                        }else{
-                            LOG.i("没有更新");
-                            Toast toast = Toast.makeText(context, "没有更新", Toast.LENGTH_LONG);
-                            toast.setText("没有更新");
-                            toast.show();
-                        }
-                    }catch (Throwable th){
-                        th.printStackTrace();
-                    };
-                } catch (Throwable th) {
-                    th.printStackTrace();
+            LOG.i("更新信息: CurrVersionNum："+ CurrVersionNum +"NewVersionNum：" +NewVersionNum);
+            if (NewVersionNum > CurrVersionNum) {
+                IsNewUpdate = true;
+                if (!isOnlyCheck) {
+                    UpdateDialog dialog = new UpdateDialog(context);
+                    dialog.show();
                 }
+            }else{
+                LOG.i("没有更新");
+                Toast toast = Toast.makeText(context, "没有更新", Toast.LENGTH_LONG);
+                toast.setText("没有更新");
+                toast.show();
             }
-
-            @Override
-            public String convertResponse(okhttp3.Response response) throws Throwable {
-                return response.body().string();
-            }
-        });
+        }catch (Throwable th){
+            th.printStackTrace();
+        };
     }
+
 
     /**
      * 显示更新对话框

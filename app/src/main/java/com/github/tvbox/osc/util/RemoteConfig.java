@@ -84,9 +84,9 @@ public class RemoteConfig {
         }
 
         // 默认更新地址
-        if (GetValue(RemoteConfigName.UpdateUrl)!=null && !GetValue(RemoteConfigName.UpdateUrl).getAsString().isEmpty()) {
-            String updateUrl = GetValue(RemoteConfigName.UpdateUrl).getAsString();
-            LOG.i("RemoteConfig", "远端设置默认更新地址", updateUrl);
+        if (GetValue(RemoteConfigName.UpdateData)!=null && GetValue(RemoteConfigName.UpdateData).getAsJsonObject() != null) {
+            JsonObject updateData = GetValue(RemoteConfigName.UpdateData).getAsJsonObject();
+            LOG.i("RemoteConfig", "远端设置默认更新数据", updateData.toString());
             if (GetValue(RemoteConfigName.IsForceUpdate)!=null && GetValue(RemoteConfigName.IsForceUpdate).getAsBoolean()){
                 LOG.i("RemoteConfig", "远端设置启动强制显示更新");
                 UpdateDialog.checkUpdate(AppManager.getInstance().currentActivity(), false);
