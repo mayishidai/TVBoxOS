@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <paths>
+    <root-path
+        name="vod_root_path"
+        path="." />
     <cache-path
         name="vod_cache_path"
         path="." />

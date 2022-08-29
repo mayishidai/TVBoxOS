@@ -85,9 +85,6 @@ public class ApiConfig {
     }
 
     public void loadConfig(boolean useCache, LoadConfigCallback callback, Activity activity) {
-        if(Hawk.get(HawkConfig.API_URL, "").isEmpty()){
-            Hawk.put(HawkConfig.API_URL, "http://43.128.88.114/tv/custom.json");
-        }
         String apiUrl = Hawk.get(HawkConfig.API_URL, "");
         LOG.i("ApiConfig: loadConfig: "+apiUrl);
         if (apiUrl.isEmpty()) {
