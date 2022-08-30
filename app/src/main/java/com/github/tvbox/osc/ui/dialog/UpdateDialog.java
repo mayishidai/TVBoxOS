@@ -160,10 +160,10 @@ public class UpdateDialog extends BaseDialog  {
                     dialog.show();
                 }
             }else{
-                LOG.i("没有更新");
-                Toast toast = Toast.makeText(context, "没有更新", Toast.LENGTH_LONG);
-                toast.setText("没有更新");
-                toast.show();
+                if (!isOnlyCheck) {
+                    LOG.i("已是最新版本");
+                    Toast.makeText(context, "已是最新版本", Toast.LENGTH_LONG).show();
+                }
             }
         }catch (Throwable th){
             th.printStackTrace();
