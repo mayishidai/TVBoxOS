@@ -148,7 +148,7 @@ public class DefaultConfig {
         ArrayList<String> result = new ArrayList<>();
         try {
             if (obj.has(key)) {
-                if (obj.get(key).isJsonObject()) {
+                if (obj.get(key).isJsonPrimitive()) {
                     result.add(obj.get(key).getAsString());
                 } else {
                     for (JsonElement opt : obj.getAsJsonArray(key)) {

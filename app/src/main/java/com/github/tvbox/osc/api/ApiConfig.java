@@ -235,9 +235,7 @@ public class ApiConfig {
         JsonObject infoJson = new Gson().fromJson(jsonStr, JsonObject.class);
         // spider
         spider = DefaultConfig.safeJsonString(infoJson, "spider", "");
-        // wallpaper
         //region 壁纸代码
-        //wallpaper = DefaultConfig.safeJsonString(infoJson, "wallpaper", "");
         wallpaperList = DefaultConfig.safeJsonStringList(infoJson, "wallpaper");
         if (wallpaperList.size() == 0)
             setWallpaperIndex(-1);

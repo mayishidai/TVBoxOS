@@ -160,7 +160,6 @@ public class ModelSettingFragment extends BaseLazyFragment {
             public void onClick(View v) {
                 FastClickCheckUtil.check(v);
                 if (!ApiConfig.get().getWallpaperList().isEmpty())
-                    //OkGo.<File>get(ApiConfig.get().wallpaper.get()).execute(new FileCallback(requireActivity().getFilesDir().getAbsolutePath(), "wp") {
                     OkGo.<File>get(ApiConfig.get().getNextWallpaperString()).execute(new FileCallback(requireActivity().getFilesDir().getAbsolutePath(), "wp") {
                         @Override
                         public void onSuccess(Response<File> response) {
