@@ -16,6 +16,8 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.content.ClipboardManager;
+import android.content.ClipData;
 
 import androidx.fragment.app.FragmentContainerView;
 import androidx.lifecycle.Observer;
@@ -70,6 +72,12 @@ import java.util.concurrent.Executors;
 
 import me.jessyan.autosize.utils.AutoSizeUtils;
 
+import android.graphics.Paint;
+import android.text.TextPaint;
+import androidx.annotation.NonNull;
+import android.graphics.Typeface;
+import androidx.recyclerview.widget.RecyclerView;
+
 /**
  * @author pj567
  * @date :2020/12/22
@@ -91,6 +99,7 @@ public class DetailActivity extends BaseActivity {
     private TextView tvType;
     private TextView tvActor;
     private TextView tvDirector;
+    private TextView tvPlayUrl;
     private TextView tvDes;
     private TextView tvPlay;
     private TextView tvSort;
@@ -110,6 +119,8 @@ public class DetailActivity extends BaseActivity {
     private View seriesFlagFocus = null;
     private boolean isReverse;
     private String preFlag="";
+    private boolean firstReverse;
+    private V7GridLayoutManager mGridViewLayoutMgr = null;
 
     @Override
     protected int getLayoutResID() {
@@ -140,6 +151,7 @@ public class DetailActivity extends BaseActivity {
         tvType = findViewById(R.id.tvType);
         tvActor = findViewById(R.id.tvActor);
         tvDirector = findViewById(R.id.tvDirector);
+        tvPlayUrl = findViewById(R.id.tvPlayUrl);
         tvDes = findViewById(R.id.tvDes);
         tvPlay = findViewById(R.id.tvPlay);
         tvSort = findViewById(R.id.tvSort);
@@ -148,7 +160,9 @@ public class DetailActivity extends BaseActivity {
         mEmptyPlayList = findViewById(R.id.mEmptyPlaylist);
         mGridView = findViewById(R.id.mGridView);
         mGridView.setHasFixedSize(true);
-        mGridView.setLayoutManager(new V7GridLayoutManager(this.mContext, isBaseOnWidth() ? 6 : 7));
+        mGridView.setHasFixedSize(false);
+        this.mGridViewLayoutMgr = new V7GridLayoutManager(this.mContext, isBaseOnWidth() ? 6 : 7);
+        mGridView.setLayoutManager(this.mGridViewLayoutMgr);
         seriesAdapter = new SeriesAdapter();
         mGridView.setAdapter(seriesAdapter);
         mGridViewFlag = findViewById(R.id.mGridViewFlag);
@@ -157,12 +171,15 @@ public class DetailActivity extends BaseActivity {
         seriesFlagAdapter = new SeriesFlagAdapter();
         mGridViewFlag.setAdapter(seriesFlagAdapter);
         isReverse = false;
+        firstReverse = false;
         if (showPreview) {
             playFragment = new PlayFragment();
             getSupportFragmentManager().beginTransaction().add(R.id.previewPlayer, playFragment).commit();
             getSupportFragmentManager().beginTransaction().show(playFragment).commitAllowingStateLoss();
             tvPlay.setText("全屏");
         }
+        //禁用播放地址焦点
+        tvPlayUrl.setFocusable(false);
         tvSort.setOnClickListener(new View.OnClickListener() {
             @SuppressLint("NotifyDataSetChanged")
             @Override
@@ -172,7 +189,8 @@ public class DetailActivity extends BaseActivity {
                     isReverse = !isReverse;
                     vodInfo.reverse();
                     vodInfo.playIndex=(vodInfo.seriesMap.get(vodInfo.playFlag).size()-1)-vodInfo.playIndex;
-                    insertVod(sourceKey, vodInfo);
+//                    insertVod(sourceKey, vodInfo);
+                    firstReverse = true;
                     seriesAdapter.notifyDataSetChanged();
                 }
             }
@@ -183,14 +201,16 @@ public class DetailActivity extends BaseActivity {
                 FastClickCheckUtil.check(v);
                 if (showPreview) {
                     toggleFullPreview();
-                    if(isReverse){
+                    if(firstReverse){
                         jumpToPlay();
+                        firstReverse=false;
                     }
                 } else {
                     jumpToPlay();
                 }
             }
         });
+
         tvQuickSearch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -235,6 +255,16 @@ public class DetailActivity extends BaseActivity {
                     Toast.makeText(DetailActivity.this, "已移除收藏夹", Toast.LENGTH_SHORT).show();
                     tvCollect.setText("加入收藏");
                 }
+            }
+        });
+        tvPlayUrl.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //获取剪切板管理器
+                ClipboardManager cm = (ClipboardManager)getSystemService(mContext.CLIPBOARD_SERVICE);
+                //设置内容到剪切板
+                cm.setPrimaryClip(ClipData.newPlainText(null, tvPlayUrl.getText().toString().replace("播放地址: ","")));
+                Toast.makeText(DetailActivity.this, "已复制", Toast.LENGTH_SHORT).show();
             }
         });
         mGridView.setOnItemListener(new TvRecyclerView.OnItemListener() {
@@ -321,7 +351,10 @@ public class DetailActivity extends BaseActivity {
                     seriesAdapter.notifyItemChanged(vodInfo.playIndex);
                     //选集全屏 想选集不全屏的注释下面一行
                     if (showPreview && !fullWindows) toggleFullPreview();
-                    if (!showPreview || reload) jumpToPlay();
+                    if (!showPreview || reload) {
+                        jumpToPlay();
+                        firstReverse=false;
+                    }
                 }
             }
         });
@@ -381,6 +414,26 @@ public class DetailActivity extends BaseActivity {
             }
             if(canSelect)vodInfo.seriesMap.get(vodInfo.playFlag).get(vodInfo.playIndex).selected = true;
         }
+
+        Paint pFont = new Paint();
+//        pFont.setTypeface(Typeface.DEFAULT );
+        Rect rect = new Rect();
+
+        List<VodInfo.VodSeries> list = vodInfo.seriesMap.get(vodInfo.playFlag);
+        int w = 1;
+        for(int i =0; i < list.size(); ++i){
+            String name = list.get(i).name;
+            pFont.getTextBounds(name, 0, name.length(), rect);
+            if(w < rect.width()){
+                w = rect.width();
+            }
+        }
+        w += 32;
+        int screenWidth = getWindowManager().getDefaultDisplay().getWidth()/3;
+        int offset = screenWidth/w;
+        if(offset <=1) offset =1;
+        if(offset > 6) offset =6;
+        this.mGridViewLayoutMgr.setSpanCount(offset);
 
         seriesAdapter.setNewData(vodInfo.seriesMap.get(vodInfo.playFlag));
         mGridView.postDelayed(new Runnable() {
@@ -477,7 +530,8 @@ public class DetailActivity extends BaseActivity {
                             } else
                                 flag.selected = false;
                         }
-
+                        //设置播放地址
+                        setTextShow(tvPlayUrl, "播放地址: ", vodInfo.seriesMap.get(vodInfo.playFlag).get(0).url);
                         seriesFlagAdapter.setNewData(vodInfo.seriesFlags);
                         mGridViewFlag.scrollToPosition(flagScrollTo);
 
@@ -750,7 +804,7 @@ public class DetailActivity extends BaseActivity {
 
     // preview
     VodInfo previewVodInfo = null;
-    boolean showPreview = Hawk.get(HawkConfig.SHOW_PREVIEW, false);; // true 开启 false 关闭
+    boolean showPreview = Hawk.get(HawkConfig.SHOW_PREVIEW, true);; // true 开启 false 关闭
     boolean fullWindows = false;
     ViewGroup.LayoutParams windowsPreview = null;
     ViewGroup.LayoutParams windowsFull = null;

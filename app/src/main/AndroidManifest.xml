@@ -27,7 +27,7 @@
 
         <activity
             android:name=".ui.activity.HomeActivity"
-            android:screenOrientation="sensorLandscape">
+            android:screenOrientation="landscape">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -50,6 +50,9 @@
             android:screenOrientation="landscape" />
         <activity
             android:name=".ui.activity.SearchActivity"
+            android:screenOrientation="landscape" />
+        <activity
+            android:name=".ui.activity.FastSearchActivity"
             android:screenOrientation="landscape" />
         <activity
             android:name=".ui.activity.SettingActivity"
