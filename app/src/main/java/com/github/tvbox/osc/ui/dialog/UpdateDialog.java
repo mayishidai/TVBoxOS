@@ -11,6 +11,7 @@ import android.os.Environment;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -20,6 +21,7 @@ import androidx.core.content.FileProvider;
 
 import com.github.tvbox.osc.api.ApiConfig;
 import com.github.tvbox.osc.base.App;
+import com.github.tvbox.osc.util.FileUtils;
 import com.github.tvbox.osc.util.LOG;
 import com.github.tvbox.osc.util.MD5;
 import com.github.tvbox.osc.util.RemoteConfig;
@@ -64,6 +66,8 @@ public class UpdateDialog extends BaseDialog  {
     private TextView msg_tv;
     private Button update;
     private Button notNow;
+    private ProgressBar progressBar;
+    private TextView progressBarText;
 
 
     public UpdateDialog(@NonNull @NotNull Context context) {
@@ -81,11 +85,14 @@ public class UpdateDialog extends BaseDialog  {
         msg_tv.setText(UpdateDesc);
         update = findViewById(R.id.yes_btn);
         notNow = findViewById(R.id.no_btn);
+        progressBar = findViewById(R.id.progressBar);
+        progressBarText = findViewById(R.id.progressBarText);
+        progressBar.setVisibility(View.GONE);
+        progressBarText.setVisibility(View.GONE);
         update.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 download(UpdateUrl);
-                dismiss();
             }
         });
         notNow.setOnClickListener(new View.OnClickListener() {
@@ -98,9 +105,14 @@ public class UpdateDialog extends BaseDialog  {
 
     @Override
     public void onBackPressed() {
-        super.onBackPressed();
-        dismiss();
+        if (!ForceUpdate){
+            super.onBackPressed();
+            dismiss();
+        }else{
+            showToast("强制更新，无法退出！");
+        }
     }
+
 
     @Override
     public void show() {
@@ -189,10 +201,20 @@ public class UpdateDialog extends BaseDialog  {
      */
     private void download(String download_path) {
         if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
-            String apkName = download_path.substring(download_path.lastIndexOf("/") + 1);
-            String target = String.format("%s/downloads/%s.apk", context.getFilesDir().getAbsolutePath(), MD5.encode(NewVersion));//不能用这个target替换下面那个分开的
-            LOG.i("apk target -->" + target);
-            OkGo.<File>get(download_path).tag("down_apk").execute(new FileCallback(context.getFilesDir().getAbsolutePath(), MD5.encode(NewVersion)+".apk") {
+            String target = String.format("%s/%s.apk", context.getExternalFilesDir("downloads").getAbsolutePath(), MD5.encode(NewVersion));
+            File file = new File(target);
+            if (file.exists()) {
+                InstallApk(file);
+                return;
+            }
+
+            LOG.i("apk url -->" + download_path);
+            LOG.i("apk target -->" + target);//不能用这个target替换下面那个分开的
+            ForceUpdate = true;
+            progressBar.setVisibility(View.VISIBLE);
+            progressBarText.setVisibility(View.VISIBLE);
+            this.setCancelable(false);
+            OkGo.<File>get(download_path).tag("down_apk").execute(new FileCallback(context.getExternalFilesDir("downloads").getAbsolutePath(), MD5.encode(NewVersion)+".tapk") {
                 @Override
                 public void onStart(Request<File, ? extends Request> request) {
                     showToast("更新开始下载...");
@@ -208,6 +230,8 @@ public class UpdateDialog extends BaseDialog  {
                 public void downloadProgress(Progress progress) {
                     LOG.i("更新下载进度", progress.toString());
                     int cur = (int)(progress.fraction*100);
+                    progressBar.setProgress(cur);
+                    progressBarText.setText(cur + "%");
                     builder.setProgress(100, cur, false)//更新进度
                             .setContentText(cur + "%");
                     manager.notify(UPDATE_ID, builder.build());
@@ -216,25 +240,18 @@ public class UpdateDialog extends BaseDialog  {
                 @Override
                 public void onSuccess(Response<File> response) {
                     LOG.i("更新下载完成...");
+                    progressBar.setVisibility(View.GONE);
+                    progressBarText.setVisibility(View.GONE);
                     manager.cancel(UPDATE_ID);//取消通知栏下载提示
-                    //下载成功后自动安装apk并打开
-                    File file = response.body().getAbsoluteFile();
-                    Intent intent = new Intent(Intent.ACTION_VIEW);
-                    if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.N){
-                        intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                        LOG.e(context.getApplicationInfo().processName, file.getAbsolutePath());
-                        Uri uri = FileProvider.getUriForFile(context, context.getApplicationInfo().processName+".fileprovider", file);
-                        intent.setDataAndType(uri, "application/vnd.android.package-archive");
-                    }else {
-                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                        Uri uri = Uri.fromFile(file);
-                        intent.setDataAndType(uri, "application/vnd.android.package-archive");
-                    }
-                    LOG.i("打开 下载文件", Uri.fromFile(file).getPath());
+                    String apkPath = response.body().getAbsoluteFile().getAbsolutePath().replace(".tapk", ".apk");
+                    File file = new File(apkPath);
                     try {
-                        context.startActivity(intent);
+                        FileUtils.copyFile(response.body().getAbsoluteFile(), file);
+                        response.body().getAbsoluteFile().delete();
+                        InstallApk(file);
                     }catch (Exception e){
-                        LOG.e("更新下载安装出现异常",e.toString());
+                        LOG.e("UpdateDialog", "tapk 到 apk复制失败，导致安装失败");
+                        e.printStackTrace();
                     }
                 }
                 @Override
@@ -248,7 +265,26 @@ public class UpdateDialog extends BaseDialog  {
             showToast("SD卡没有插好");
         }
     }
-
+    //下载成功后自动安装apk并打开
+    private void InstallApk(File file){
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.N){
+            intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            LOG.e(context.getApplicationInfo().processName, file.getAbsolutePath());
+            Uri uri = FileProvider.getUriForFile(context, context.getApplicationInfo().processName+".fileprovider", file);
+            intent.setDataAndType(uri, "application/vnd.android.package-archive");
+        }else {
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            Uri uri = Uri.fromFile(file);
+            intent.setDataAndType(uri, "application/vnd.android.package-archive");
+        }
+        LOG.i("打开 下载文件", Uri.fromFile(file).getPath());
+        try {
+            context.startActivity(intent);
+        }catch (Exception e){
+            LOG.e("更新下载安装出现异常",e.toString());
+        }
+    }
     public void showToast(String msg){
         if (toast==null)
             toast = Toast.makeText(context, msg, Toast.LENGTH_LONG);
