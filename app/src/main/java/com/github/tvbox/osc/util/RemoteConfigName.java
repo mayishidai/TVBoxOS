@@ -15,6 +15,16 @@ public class RemoteConfigName {
     public static final String HomeWindowPreview="HomeWindowPreview"; //默认窗口预览
     // endregion
 
+    // region 直播配置相关
+    public static final String Live ="Live"; //直播
+    public static final String Live_Channel="Channel"; //频道名字
+    public static final String Live_ChannelReverse = "ChannelReverse"; // 换台反转
+    public static final String Live_CrossGroup = "CrossGroup"; // 跨选分类
+    public static final String Live_ConnectTimeout = "ConnectTimeout"; // 超时换源时间 0 5s 1 10s 2 15s 3 20s 4 25s 5 30s
+    public static final String Live_ShowNetSpeed = "ShowNetSpeed"; // 显示网速
+    public static final String Live_ShowTime = "ShowTime"; // 显示时间
+    // endregion
+
     // region 更新相关
     public static final String IsForceUpdate="IsForceUpdate"; // 是否首页强制显示更新
     public static final String UpdateData="UpdateData"; // 更新数据
