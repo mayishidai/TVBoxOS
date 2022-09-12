@@ -4,7 +4,10 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
@@ -16,11 +19,14 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.chad.library.adapter.base.BaseQuickAdapter;
+import com.github.other.xunfei.WebIATWS;
 import com.github.tvbox.osc.R;
 import com.github.tvbox.osc.api.ApiConfig;
+import com.github.tvbox.osc.base.App;
 import com.github.tvbox.osc.base.BaseActivity;
 import com.github.tvbox.osc.bean.AbsXml;
 import com.github.tvbox.osc.bean.Movie;
@@ -31,15 +37,21 @@ import com.github.tvbox.osc.server.ControlManager;
 import com.github.tvbox.osc.ui.adapter.PinyinAdapter;
 import com.github.tvbox.osc.ui.adapter.SearchAdapter;
 import com.github.tvbox.osc.ui.dialog.RemoteDialog;
+import com.github.tvbox.osc.ui.dialog.VoiceDialog;
 import com.github.tvbox.osc.ui.tv.QRCodeGen;
 import com.github.tvbox.osc.ui.tv.widget.SearchKeyboard;
+import com.github.tvbox.osc.util.AppManager;
 import com.github.tvbox.osc.util.FastClickCheckUtil;
 import com.github.tvbox.osc.util.HawkConfig;
+import com.github.tvbox.osc.util.LOG;
 import com.github.tvbox.osc.viewmodel.SourceViewModel;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.hjq.permissions.OnPermissionCallback;
+import com.hjq.permissions.Permission;
+import com.hjq.permissions.XXPermissions;
 import com.lzy.okgo.OkGo;
 import com.lzy.okgo.callback.AbsCallback;
 import com.lzy.okgo.model.Response;
@@ -217,14 +229,14 @@ public class SearchActivity extends BaseActivity {
         keyboard.setOnSearchKeyListener(new SearchKeyboard.OnSearchKeyListener() {
             @Override
             public void onSearchKey(int pos, String key) {
-                if (pos > 1) {
+                if (pos > 2) {
                     String text = etSearch.getText().toString().trim();
                     text += key;
                     etSearch.setText(text);
                     if (text.length() > 0) {
                         loadRec(text);
                     }
-                } else if (pos == 1) {
+                } else if (pos == 2) {
                     String text = etSearch.getText().toString().trim();
                     if (text.length() > 0) {
                         text = text.substring(0, text.length() - 1);
@@ -233,9 +245,45 @@ public class SearchActivity extends BaseActivity {
                     if (text.length() > 0) {
                         loadRec(text);
                     }
-                } else if (pos == 0) {
+                } else if (pos == 1) {
                     RemoteDialog remoteDialog = new RemoteDialog(mContext);
                     remoteDialog.show();
+                } else if (pos == 0) { //语音搜索
+                    VoiceDialog.voicePermissions(mContext, new Handler.Callback() {
+                        @Override
+                        public boolean handleMessage(@NonNull Message message) {
+                            VoiceDialog voiceDialog = new VoiceDialog(mContext);
+                            voiceDialog.show();
+                            voiceDialog.SetTextCallback(new Handler.Callback() {
+                                @Override
+                                public boolean handleMessage(@NonNull Message message) {
+                                    try {
+                                        AppManager.getInstance().currentActivity().runOnUiThread(
+                                                new Runnable() {
+                                                    @Override
+                                                    public void run() {
+                                                        String text = (String)message.obj;
+                                                        //Toast.makeText(mContext, text, Toast.LENGTH_LONG).show();
+                                                        if (text.isEmpty()) {
+                                                            LOG.e("SearchActivity", "没有检查到说话内容，请重新开始！");
+                                                            Toast.makeText(mContext,"没有检查到说话内容，请重新开始！", Toast.LENGTH_LONG).show();
+                                                        }else{
+                                                            etSearch.setText(text);
+                                                            loadRec(text);
+                                                            tvSearch.performClick();
+                                                        }
+                                                    }
+                                                }
+                                        );
+                                    }catch (Exception ex){
+                                        LOG.printStackTrace(ex);
+                                    }
+                                    return true;
+                                }
+                            });
+                            return true;
+                        }
+                    });
                 }
             }
         });
@@ -337,6 +385,7 @@ public class SearchActivity extends BaseActivity {
             try {
                 searchData(event.obj == null ? null : (AbsXml) event.obj);
             } catch (Exception e) {
+                LOG.printStackTrace(e);
                 searchData(null);
             }
         }

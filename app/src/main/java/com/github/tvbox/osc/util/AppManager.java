@@ -1,6 +1,7 @@
 package com.github.tvbox.osc.util;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 
 import java.util.Stack;
 
@@ -132,5 +133,24 @@ public class AppManager {
             activityStack.clear();
             e.printStackTrace();
         }
+    }
+
+    /**
+     * 遮罩层
+     * @param message 遮罩层的文字显示
+     * @param mActivity 使用的activity
+     */
+    public ProgressDialog showProgressDialog(String message, Activity mActivity) {
+        ProgressDialog mProgressDialog = null;
+        if (mProgressDialog == null) {
+            mProgressDialog = new ProgressDialog(mActivity==null? getInstance().currentActivity():mActivity);
+            mProgressDialog.setCanceledOnTouchOutside(false);
+            mProgressDialog.setCancelable(false);
+        }
+        mProgressDialog.setMessage(message);
+        if (!mProgressDialog.isShowing()) {
+            mProgressDialog.show();
+        }
+        return mProgressDialog;
     }
 }
