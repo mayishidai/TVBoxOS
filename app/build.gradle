@@ -8,7 +8,7 @@ android {
         minSdkVersion 16
         targetSdkVersion 26
         versionCode 1
-        versionName '1.0.4'
+        versionName '1.0.5'
         multiDexEnabled true
         //设置room的Schema的位置
         javaCompileOptions {
@@ -107,6 +107,7 @@ android.applicationVariants.all {
                 output.outputFileName = "tvbox_${android.defaultConfig.versionName}_${date}_debug.apk"
             }else if (variant.buildType.name == 'release'){
                 output.outputFileName = "tvbox_${date}.apk"
+                println(String.format("UpdateUrl->https://mayishidai.cn/tv/apk/%s", URLEncoder.encode(output.outputFileName, "UTF-8")));
             }
         }
 }

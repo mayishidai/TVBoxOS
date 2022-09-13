@@ -5,7 +5,10 @@ import android.os.Message;
 
 import com.github.tvbox.osc.util.LOG;
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -62,8 +65,10 @@ public class WebIATWS extends WebSocketListener {
 
     @Override
     public void onOpen(WebSocket webSocket, Response response) {
+        LOG.d("讯飞语音", "onOpen WebSocket");
         super.onOpen(webSocket, response);
         new Thread(()->{
+            LOG.d("讯飞语音", "onOpen WebSocket Thread");
             //连接成功，开始发送数据
             int frameSize = 1280; //每一帧音频的大小,建议每 40ms 发送 122B
             int intervel = 40;
@@ -122,7 +127,7 @@ public class WebIATWS extends WebSocketListener {
                             data1.addProperty("audio", Base64.getEncoder().encodeToString(Arrays.copyOf(buffer, len)));
                             frame1.add("data", data1);
                             webSocket.send(frame1.toString());
-                            // System.out.println("send continue");
+                            // LOG.d("讯飞语音", "send continue");
                             break;
                         case StatusLastFrame:    // 最后一帧音频status = 2 ，标志音频发送结束
                             JsonObject frame2 = new JsonObject();
@@ -133,52 +138,59 @@ public class WebIATWS extends WebSocketListener {
                             data2.addProperty("encoding", "raw");
                             frame2.add("data", data2);
                             webSocket.send(frame2.toString());
-                            System.out.println("sendlast");
+                            LOG.d("讯飞语音", "sendlast");
                             break end;
                     }
                     Thread.sleep(intervel); //模拟音频采样延时
                 }
-                System.out.println("all data is send");
+                LOG.d("讯飞语音", "all data is send");
             } catch (FileNotFoundException e) {
-                e.printStackTrace();
+                LOG.printStackTrace(e);
             } catch (IOException e) {
-                e.printStackTrace();
+                LOG.printStackTrace(e);
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                LOG.printStackTrace(e);
             }
         }).start();
     }
     @Override
     public void onMessage(WebSocket webSocket, String text) {
+        LOG.d("讯飞语音", "onOpen onMessage", text);
         super.onMessage(webSocket, text);
-        //System.out.println(text);
-        ResponseData resp = json.fromJson(text, ResponseData.class);
+        //LOG.d("讯飞语音", text);
+        // 在真机安装包无法识别
+//        ResponseData resp = json.fromJson(text, ResponseData.class);
+        // 手动填充
+        ResponseData resp = ResponseData.convert(JsonParser.parseString(text).getAsJsonObject());
+        LOG.d("讯飞语音", "resp 手动填充通过");
+
+        LOG.d("讯飞语音", "resp解析", json.toJson(resp));
         if (resp != null) {
             if (resp.getCode() != 0) {
-                System.out.println( "code=>" + resp.getCode() + " error=>" + resp.getMessage() + " sid=" + resp.getSid());
-                System.out.println( "错误码查询链接：https://www.xfyun.cn/document/error-code");
+                LOG.d("讯飞语音",  "code=>" + resp.getCode() + " error=>" + resp.getMessage() + " sid=" + resp.getSid());
+                LOG.d("讯飞语音",  "错误码查询链接：https://www.xfyun.cn/document/error-code");
                 return;
             }
             if (resp.getData() != null) {
                 if (resp.getData().getResult() != null) {
                     Text te = resp.getData().getResult().getText();
-                    //System.out.println(te.toString());
+                    LOG.d("讯飞语音", te.toString());
                     try {
                         decoder.decode(te);
-                        System.out.println("中间识别结果 ==》" + decoder.toString());
+                        LOG.d("讯飞语音", "中间识别结果 ==》" + decoder.toString());
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
                 }
                 if (resp.getData().getStatus() == 2) {
                     // todo  resp.data.status ==2 说明数据全部返回完毕，可以关闭连接，释放资源
-                    System.out.println("session end ");
+                    LOG.d("讯飞语音", "session end ");
                     dateEnd = new Date();
-                    System.out.println(sdf.format(dateBegin) + "开始");
-                    System.out.println(sdf.format(dateEnd) + "结束");
-                    System.out.println("耗时:" + (dateEnd.getTime() - dateBegin.getTime()) + "ms");
-                    System.out.println("最终识别结果 ==》" + decoder.toString());
-                    System.out.println("本次识别sid ==》" + resp.getSid());
+                    LOG.d("讯飞语音", sdf.format(dateBegin) + "开始");
+                    LOG.d("讯飞语音", sdf.format(dateEnd) + "结束");
+                    LOG.d("讯飞语音", "耗时:" + (dateEnd.getTime() - dateBegin.getTime()) + "ms");
+                    LOG.d("讯飞语音", "最终识别结果 ==》" + decoder.toString());
+                    LOG.d("讯飞语音", "本次识别sid ==》" + resp.getSid());
                     if (WebIATWS.Callback!=null){
                         Message message = new Message();
                         message.obj = decoder.toString();
@@ -188,26 +200,36 @@ public class WebIATWS extends WebSocketListener {
                     webSocket.close(1000, "");
                 } else {
                     // todo 根据返回的数据处理
+                    LOG.d("讯飞语音", "onOpen onMessage resp.getData().getStatus()", resp.getData().getStatus());
                 }
+            }else{
+                LOG.e("讯飞语音", "onOpen onMessage resp.getData() null");
             }
+        }else{
+            LOG.e("讯飞语音", "onOpen onMessage resp null");
         }
     }
     @Override
     public void onFailure(WebSocket webSocket, Throwable t, Response response) {
+        LOG.e("讯飞语音", "onOpen onFailure", t.getMessage());
         super.onFailure(webSocket, t, response);
         try {
             if (null != response) {
                 int code = response.code();
-                System.out.println("onFailure code:" + code);
-                System.out.println("onFailure body:" + response.body().string());
+                LOG.d("讯飞语音", "onFailure code:" + code);
+                LOG.d("讯飞语音", "onFailure body:" + response.body().string());
                 if (101 != code) {
-                    System.out.println("connection failed");
+                    LOG.d("讯飞语音", "connection failed");
                     System.exit(0);
                 }
             }
         } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            LOG.printStackTrace(e);
+        }
+        if (WebIATWS.Callback!=null){
+            Message message = new Message();
+            message.obj = "";
+            WebIATWS.Callback.handleMessage(message);
         }
     }
     public static String getAuthUrl(String hostUrl, String apiKey, String apiSecret) throws Exception {
@@ -218,7 +240,7 @@ public class WebIATWS extends WebSocketListener {
         StringBuilder builder = new StringBuilder("host: ").append(url.getHost()).append("\n").//
                 append("date: ").append(date).append("\n").//
                 append("GET ").append(url.getPath()).append(" HTTP/1.1");
-        //System.out.println(builder);
+        //LOG.d("讯飞语音", builder);
         Charset charset = Charset.forName("UTF-8");
         Mac mac = Mac.getInstance("hmacsha256");
         SecretKeySpec spec = new SecretKeySpec(apiSecret.getBytes(charset), "hmacsha256");
@@ -226,9 +248,9 @@ public class WebIATWS extends WebSocketListener {
         byte[] hexDigits = mac.doFinal(builder.toString().getBytes(charset));
         String sha = Base64.getEncoder().encodeToString(hexDigits);
 
-        //System.out.println(sha);
+        //LOG.d("讯飞语音", sha);
         String authorization = String.format("api_key=\"%s\", algorithm=\"%s\", headers=\"%s\", signature=\"%s\"", apiKey, "hmac-sha256", "host date request-line", sha);
-        //System.out.println(authorization);
+        //LOG.d("讯飞语音", authorization);
         HttpUrl httpUrl = HttpUrl.parse("https://" + url.getHost() + url.getPath()).newBuilder().//
                 addQueryParameter("authorization", Base64.getEncoder().encodeToString(authorization.getBytes(charset))).//
                 addQueryParameter("date", date).//
@@ -253,6 +275,14 @@ public class WebIATWS extends WebSocketListener {
         public Data getData() {
             return data;
         }
+        public static ResponseData convert(JsonObject jsonObject){
+            ResponseData self = new ResponseData();
+            self.code = jsonObject.get("code").getAsInt();
+            self.message = jsonObject.get("message").getAsString();
+            self.sid = jsonObject.get("sid").getAsString();
+            self.data = Data.convert(jsonObject.get("data").getAsJsonObject());
+            return self;
+        }
     }
     public static class Data {
         private int status;
@@ -262,6 +292,12 @@ public class WebIATWS extends WebSocketListener {
         }
         public Result getResult() {
             return result;
+        }
+        public static Data convert(JsonObject jsonObject){
+            Data self = new Data();
+            self.status = jsonObject.get("status").getAsInt();
+            self.result = Result.convert(jsonObject.get("result").getAsJsonObject());
+            return self;
         }
     }
     public static class Result {
@@ -290,15 +326,52 @@ public class WebIATWS extends WebSocketListener {
             text.vad = this.vad==null ? null : this.vad;
             return text;
         }
+        public static Result convert(JsonObject jsonObject){
+            Result self = new Result();
+            self.bg = jsonObject.get("bg").getAsInt();
+            self.ed = jsonObject.get("ed").getAsInt();
+            self.pgs = jsonObject.get("pgs").getAsString();
+            self.sn = jsonObject.get("sn").getAsInt();
+            self.ls = jsonObject.get("ls").getAsBoolean();
+            self.vad = jsonObject.has("vad") ? jsonObject.get("vad").getAsJsonObject() : null;
+            JsonArray rgs = jsonObject.has("rg") ? jsonObject.get("rg").getAsJsonArray() : new JsonArray();
+            self.rg = new int[rgs.size()];
+            for (int i = 0; i < rgs.size(); i++) {
+                self.rg[i] = rgs.get(i).getAsInt();
+            }
+            JsonArray wss = jsonObject.has("ws") ? jsonObject.get("ws").getAsJsonArray() : new JsonArray();
+            self.ws = new Ws[wss.size()];
+            for (int i = 0; i < wss.size(); i++) {
+                self.ws[i] = Ws.convert(wss.get(i).getAsJsonObject());
+            }
+            return self;
+        }
     }
     public static class Ws {
         Cw[] cw;
         int bg;
         int ed;
+        public static Ws convert(JsonObject jsonObject) {
+            Ws self = new Ws();
+            self.bg = jsonObject.get("bg").getAsInt();
+            self.ed = jsonObject.has("ed") ? jsonObject.get("ed").getAsInt() : 0;
+            JsonArray cws = jsonObject.has("cw") ? jsonObject.get("cw").getAsJsonArray() : new JsonArray();
+            self.cw = new Cw[cws.size()];
+            for (int i = 0; i < cws.size(); i++) {
+                self.cw[i] = Cw.convert(cws.get(i).getAsJsonObject());
+            }
+            return self;
+        }
     }
     public static class Cw {
         int sc;
         String w;
+        public static Cw convert(JsonObject jsonObject) {
+            Cw self = new Cw();
+            self.sc = jsonObject.get("sc").getAsInt();
+            self.w = jsonObject.get("w").getAsString();
+            return self;
+        }
     }
     public static class Text {
         int sn;
@@ -383,10 +456,11 @@ public class WebIATWS extends WebSocketListener {
         OkHttpClient client = new OkHttpClient.Builder().build();
         //将url中的 schema http://和https://分别替换为ws:// 和 wss://
         String url = authUrl.toString().replace("http://", "ws://").replace("https://", "wss://");
-        //System.out.println(url);
+        //LOG.d("讯飞语音", url);
         Request request = new Request.Builder().url(url).build();
-        // System.out.println(client.newCall(request).execute());
-        //System.out.println("url===>" + url);
+        // LOG.d("讯飞语音", client.newCall(request).execute());
+        //LOG.d("讯飞语音", "url===>" + url);
+        LOG.d("讯飞语音", "开始Socket");
         WebSocket webSocket = client.newWebSocket(request, new WebIATWS());
     }
     // 远程设置参数
