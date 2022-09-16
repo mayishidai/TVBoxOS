@@ -17,7 +17,7 @@ import java.util.Date;
 public class LOG {
     private static String TAG = "TVBox";
 
-    private static String TAG = "TVBox";
+    
     private static boolean isSaveLog = false;
     private static int saveDay = 2;
     private static File file;
