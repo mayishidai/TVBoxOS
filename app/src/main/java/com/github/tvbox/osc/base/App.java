@@ -16,6 +16,10 @@ import me.jessyan.autosize.AutoSize;
 import me.jessyan.autosize.AutoSizeConfig;
 import me.jessyan.autosize.unit.Subunits;
 
+import com.github.tvbox.osc.util.LOG;
+import com.github.tvbox.osc.util.RemoteConfig;
+
+
 /**
  * @author pj567
  * @date :2020/12/17
@@ -28,6 +32,8 @@ public class App extends MultiDexApplication {
     public void onCreate() {
         super.onCreate();
         instance = this;
+         RemoteConfig.Init();
+        // LOG.OpenSaveLog();
         initParams();
         // OKGo
         OkGoHelper.init();
