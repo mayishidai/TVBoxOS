@@ -4,6 +4,7 @@ package com.github.tvbox.osc.util;
 public class RemoteConfigName {
     public static final String IsRecodeLog="IsRecodeLog"; // 是否开启日志记录
     // region 默认配置相关
+    public static final String ForceChangeAPIUrl="ForceChangeAPIUrl"; //强制替换首页默认API地址，防止API失效不更新包的手段
     public static final String APIUrl="APIUrl"; // 默认首页API地址
     public static final String HomeID="HomeID"; //默认首页数据源
     public static final String HomeShowType="HomeShowType"; //默认首页推荐

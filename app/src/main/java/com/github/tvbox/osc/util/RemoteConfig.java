@@ -1,10 +1,9 @@
 package com.github.tvbox.osc.util;
 
-import android.content.Intent;
+import android.content.Context;
 import android.os.Bundle;
 
 import com.github.other.xunfei.WebIATWS;
-import com.github.tvbox.osc.base.App;
 import com.github.tvbox.osc.base.BaseActivity;
 import com.github.tvbox.osc.ui.activity.HomeActivity;
 import com.github.tvbox.osc.ui.dialog.UpdateDialog;
@@ -21,12 +20,19 @@ import com.orhanobut.hawk.Hawk;
  * 远程文件配置
  */
 public class RemoteConfig {
-    //private static String remoteUrl = "http://43.128.88.114/tv/apk/remote.ini";
-    private static String remoteUrl = "http://mayishidai.cn/tv/apk/remote.ini";
+    private static String remoteUrl = "";
     private static JsonObject remoteJsonObject;
     private static boolean isRemoteConfigOk;
 
-    public static void Init(){
+    public static void Init(Context mContext){
+        if (ToolUtils.isApkInDebug(mContext)){
+            remoteUrl = "http://a.mayishidai.cn:7080/tv/apk/remote.ini";
+        }else{
+            remoteUrl = "https://mayishidai.cn/tv/apk/remote.ini";
+        }
+        LOG.e("RemoteConfig",
+                ToolUtils.isApkInDebug(mContext) ? "当前处于【调试】模式":"当前处于【正式】模式",
+                "远程配置地址", remoteUrl);
         isRemoteConfigOk = false;
         OkGo.<String>get(remoteUrl).execute(new AbsCallback<String>() {
             @Override
@@ -81,7 +87,10 @@ public class RemoteConfig {
         // region 默认API地址
         if (GetValue(RemoteConfigName.APIUrl)!=null && !GetValue(RemoteConfigName.APIUrl).getAsString().isEmpty()) {
             String remoteValue = GetValue(RemoteConfigName.APIUrl).getAsString();
-            if(SetRemoteHawkConfig(HawkConfig.API_URL, remoteValue,"默认首页API")){
+            boolean forceChangeAPIUrl = GetValue(RemoteConfigName.ForceChangeAPIUrl)!=null && GetValue(RemoteConfigName.ForceChangeAPIUrl).getAsBoolean();
+            if (forceChangeAPIUrl)
+                LOG.e("RemoteConfig", "远端强制替换APIUrl地址");
+            if(SetRemoteHawkConfig(HawkConfig.API_URL, remoteValue,"默认首页API") || forceChangeAPIUrl){
                 Bundle bundle = new Bundle();
                 bundle.putBoolean("useCache", true);
                 BaseActivity currActivity = (BaseActivity)AppManager.getInstance().currentActivity();
