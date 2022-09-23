@@ -9,6 +9,9 @@ import com.github.tvbox.osc.bean.IJKCode;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import tv.danmaku.ijk.media.player.IMediaPlayer;
+import tv.danmaku.ijk.media.player.misc.ITrackInfo;
+import tv.danmaku.ijk.media.player.misc.IjkTrackInfo;
 import xyz.doikki.videoplayer.ijk.IjkPlayer;
 
 public class IjkMediaPlayer extends IjkPlayer {
@@ -39,6 +42,8 @@ public class IjkMediaPlayer extends IjkPlayer {
                 }
             }
         }
+        //开启内置字幕
+        mMediaPlayer.setOption(tv.danmaku.ijk.media.player.IjkMediaPlayer.OPT_CATEGORY_PLAYER, "subtitle", 1);
     }
 
     @Override
@@ -54,4 +59,42 @@ public class IjkMediaPlayer extends IjkPlayer {
         }
         super.setDataSource(path, headers);
     }
+
+    public TrackInfo getTrackInfo() {
+        IjkTrackInfo[] trackInfo = mMediaPlayer.getTrackInfo();
+        if (trackInfo == null) return null;
+        TrackInfo data = new TrackInfo();
+        int subtitleSelected = mMediaPlayer.getSelectedTrack(ITrackInfo.MEDIA_TRACK_TYPE_TIMEDTEXT);
+        int audioSelected = mMediaPlayer.getSelectedTrack(ITrackInfo.MEDIA_TRACK_TYPE_AUDIO);
+        int index = 0;
+        for (IjkTrackInfo info : trackInfo) {
+            if (info.getTrackType() == ITrackInfo.MEDIA_TRACK_TYPE_AUDIO) {//音轨信息
+                TrackInfoBean t = new TrackInfoBean();
+                t.name = info.getInfoInline();
+                t.language = info.getLanguage();
+                t.index = index;
+                t.selected = index == audioSelected;
+                data.addAudio(t);
+            }
+            if (info.getTrackType() == ITrackInfo.MEDIA_TRACK_TYPE_TIMEDTEXT) {//内置字幕
+                TrackInfoBean t = new TrackInfoBean();
+                t.name = info.getInfoInline();
+                t.language = info.getLanguage();
+                t.index = index;
+                t.selected = index == subtitleSelected;
+                data.addSubtitle(t);
+            }
+            index++;
+        }
+        return data;
+    }
+
+    public void setTrack(int trackIndex) {
+        mMediaPlayer.selectTrack(trackIndex);
+    }
+
+    public void setOnTimedTextListener(IMediaPlayer.OnTimedTextListener listener) {
+        mMediaPlayer.setOnTimedTextListener(listener);
+    }
+
 }

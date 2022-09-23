@@ -7,8 +7,10 @@ package com.github.tvbox.osc.util;
  */
 public class HawkConfig {
     public static final String API_URL = "api_url";
+    public static final String EPG_URL = "epg_url";
     public static final String SHOW_PREVIEW = "show_preview";
     public static final String API_HISTORY = "api_history";
+    public static final String EPG_HISTORY = "epg_history";
     public static final String HOME_API = "home_api";
     public static final String DEFAULT_PARSE = "parse_default";
     public static final String DEBUG_OPEN = "debug_open";
@@ -30,4 +32,6 @@ public class HawkConfig {
     public static final String LIVE_SHOW_TIME = "live_show_time";
     public static final String WALLPAPER_INDEX = "wallpaper_index"; //当前系统壁纸索引
     public static final String FAST_SEARCH_MODE = "fast_search_mode";
+    public static final String SUBTITLE_TEXT_SIZE = "subtitle_text_size";
+    public static final String SUBTITLE_TIME_DELAY = "subtitle_time_delay";
 }
