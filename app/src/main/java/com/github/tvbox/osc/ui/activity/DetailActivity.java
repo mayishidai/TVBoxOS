@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Rect;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.Html;
 import android.text.TextUtils;
@@ -38,9 +39,11 @@ import com.github.tvbox.osc.ui.adapter.SeriesAdapter;
 import com.github.tvbox.osc.ui.adapter.SeriesFlagAdapter;
 import com.github.tvbox.osc.ui.dialog.QuickSearchDialog;
 import com.github.tvbox.osc.ui.fragment.PlayFragment;
+import com.github.tvbox.osc.util.AppManager;
 import com.github.tvbox.osc.util.DefaultConfig;
 import com.github.tvbox.osc.util.FastClickCheckUtil;
 import com.github.tvbox.osc.util.HawkConfig;
+import com.github.tvbox.osc.util.LOG;
 import com.github.tvbox.osc.util.MD5;
 import com.github.tvbox.osc.viewmodel.SourceViewModel;
 import com.google.gson.Gson;
@@ -121,6 +124,7 @@ public class DetailActivity extends BaseActivity {
     private String preFlag="";
     private boolean firstReverse;
     private V7GridLayoutManager mGridViewLayoutMgr = null;
+    private Thread focusChechThread;
 
     @Override
     protected int getLayoutResID() {
@@ -129,6 +133,39 @@ public class DetailActivity extends BaseActivity {
 
     @Override
     protected void init() {
+        Runnable run2 = new Runnable() {
+            @Override
+            public void run() {
+                while (true) {
+                    try {
+                        Thread.sleep(1000);
+                        View rootview = getWindow().getDecorView();
+                        View currentView = rootview.findFocus();
+                        //TAG为当前Activity名称
+                        //LOG.d("DetailActivity", "当前焦点所在View："+currentView.toString());
+                        if (currentView.toString().startsWith("org.xwalk.core.internal.XWalkContentView")) {
+                            LOG.d("DetailActivity", "转移焦点到 tvPlay");
+                            AppManager.getInstance().currentActivity().runOnUiThread(
+                                new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        LOG.d("DetailActivity", "转移焦点到 tvPlay 开始在UI执行");
+                                        tvPlay.setFocusable(true);
+                                        tvPlay.requestFocus();
+                                    }
+                                }
+                            );
+                        }
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                        return;
+                    }
+                }
+            }
+        };
+        focusChechThread = new Thread(run2);
+        focusChechThread.start();
+
         EventBus.getDefault().register(this);
         initView();
         initViewModel();
@@ -179,8 +216,8 @@ public class DetailActivity extends BaseActivity {
             getSupportFragmentManager().beginTransaction().show(playFragment).commitAllowingStateLoss();
             tvPlay.setText("全屏");
         }
-        //禁用播放地址焦点
-        tvPlayUrl.setFocusable(false);
+        tvPlay.setFocusable(true);
+        tvPlay.requestFocus();
         tvSort.setOnClickListener(new View.OnClickListener() {
             @SuppressLint("NotifyDataSetChanged")
             @Override
@@ -749,6 +786,7 @@ public class DetailActivity extends BaseActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        focusChechThread.interrupt();
         try {
             if (searchExecutorService != null) {
                 searchExecutorService.shutdownNow();
