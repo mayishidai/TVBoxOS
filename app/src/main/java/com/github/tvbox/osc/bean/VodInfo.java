@@ -9,6 +9,7 @@ import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 /**
  * @author pj567
@@ -76,6 +77,31 @@ public class VodInfo implements Serializable {
                     List<VodSeries> seriesList = new ArrayList<>();
                     for (Movie.Video.UrlBean.UrlInfo.InfoBean infoBean : urlInfo.beanList) {
                         seriesList.add(new VodSeries(infoBean.name, infoBean.url));
+                    }
+                    try{
+                        Pattern pattern = Pattern.compile("[^0-9]+");
+                        if (seriesList.size() > 0 && Integer.parseInt(pattern.matcher(seriesList.get(0).name).replaceAll("").trim()) > -1)
+                        {
+                            int length=seriesList.size();
+                            //最小值的索引
+                            int index;
+                            for(int i=0;i<length;i++){
+                                index=i;
+                                for(int j=i+1;j<length;j++){
+                                    //寻找最小的值
+                                    int a = Integer.parseInt(pattern.matcher(seriesList.get(j).name).replaceAll("").trim());
+                                    int b = Integer.parseInt(pattern.matcher(seriesList.get(index).name).replaceAll("").trim());
+                                    if(a<b){
+                                        index=j;
+                                    }
+                                }
+                                VodSeries tem=seriesList.get(i);
+                                seriesList.set(i, seriesList.get(index));
+                                seriesList.set(index, tem);
+                            }
+                        }
+                    }catch (Exception ex){
+                        // 非数字不进行正则排序
                     }
                     tempSeriesMap.put(urlInfo.flag, seriesList);
                     seriesFlags.add(new VodSeriesFlag(urlInfo.flag));
