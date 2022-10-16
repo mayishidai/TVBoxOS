@@ -21,6 +21,7 @@ import androidx.core.content.FileProvider;
 
 import com.github.tvbox.osc.api.ApiConfig;
 import com.github.tvbox.osc.base.App;
+import com.github.tvbox.osc.util.DefaultConfig;
 import com.github.tvbox.osc.util.FileUtils;
 import com.github.tvbox.osc.util.LOG;
 import com.github.tvbox.osc.util.MD5;
@@ -144,14 +145,8 @@ public class UpdateDialog extends BaseDialog  {
             ForceUpdate = updateJosn.get(RemoteConfigName.UpdateData_ForceUpdate).getAsBoolean();
             UpdateDesc = updateJosn.get(RemoteConfigName.UpdateData_UpdateDesc).getAsString();
             UpdateUrl = updateJosn.get(RemoteConfigName.UpdateData_UpdateDownloadUrl).getAsString();
+            CurrVersion = DefaultConfig.getAppVersionName(context);
 
-            try {
-                PackageManager packageManager = context.getPackageManager();
-                PackageInfo packInfo = packageManager.getPackageInfo(context.getPackageName(), 0);
-                CurrVersion = packInfo.versionName;
-            }catch (Exception e){
-                e.printStackTrace();
-            }
             NewVersionNum = 0;
             CurrVersionNum = 0;
             String[] NewVersions = NewVersion.split("\\.");

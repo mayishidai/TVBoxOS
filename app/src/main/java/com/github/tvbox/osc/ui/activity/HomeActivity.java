@@ -232,13 +232,7 @@ public class HomeActivity extends BaseActivity {
         setLoadSir(this.contentLayout);
         //mHandler.postDelayed(mFindFocus, 500);
 
-        try {
-            PackageManager packageManager = this.getPackageManager();
-            PackageInfo packInfo = packageManager.getPackageInfo(this.getPackageName(), 0);
-            this.tvVersion.setText("V:"+packInfo.versionName);
-        }catch (Exception e){
-            e.printStackTrace();
-        }
+        this.tvVersion.setText("V:"+DefaultConfig.getAppVersionName(this));
     }
 
     private void initViewModel() {
