@@ -52,11 +52,11 @@ public class RemoteConfig {
         return isRemoteConfigOk;
     }
     public static JsonElement GetValue(String... keys){
-        JsonObject jsonObject = remoteJsonObject;
-        for (int i = 0; i < keys.length; i++) {
-            String key = keys[i];
-            if (IsOk() && jsonObject != null) {
-                if (i == keys.length-1)
+        if (IsOk() && remoteJsonObject != null) {
+            JsonObject jsonObject = remoteJsonObject;
+            for (int i = 0; i < keys.length; i++) {
+                String key = keys[i];
+                if (i == keys.length - 1)
                     return jsonObject.get(key);
                 else
                     jsonObject = jsonObject.get(key).getAsJsonObject();

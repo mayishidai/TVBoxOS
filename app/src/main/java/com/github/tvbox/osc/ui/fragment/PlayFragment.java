@@ -735,7 +735,7 @@ public class PlayFragment extends BaseLazyFragment {
     private int autoRetryCount = 0;
 
     boolean autoRetry() {
-        if (autoRetryCount < 2) {
+        if (autoRetryCount < 3) {
             play(false);
             autoRetryCount++;
             return true;
