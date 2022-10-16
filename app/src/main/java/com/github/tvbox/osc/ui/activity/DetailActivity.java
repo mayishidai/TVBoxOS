@@ -143,7 +143,7 @@ public class DetailActivity extends BaseActivity {
                         View currentView = rootview.findFocus();
                         //TAG为当前Activity名称
                         //LOG.d("DetailActivity", "当前焦点所在View："+currentView.toString());
-                        if (currentView.toString().startsWith("org.xwalk.core.internal.XWalkContentView")) {
+                        if (currentView!=null && currentView.toString().startsWith("org.xwalk.core.internal.XWalkContentView")) {
                             LOG.d("DetailActivity", "转移焦点到 tvPlay");
                             AppManager.getInstance().currentActivity().runOnUiThread(
                                 new Runnable() {
