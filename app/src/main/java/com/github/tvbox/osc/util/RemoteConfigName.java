@@ -1,7 +1,7 @@
 package com.github.tvbox.osc.util;
 
 // 远程配置文件名
-public class RemoteConfigName {
+public class RemoteConfigName extends HawkConfig {
     public static final String IsRecodeLog="IsRecodeLog"; // 是否开启日志记录
     // region 默认配置相关
     public static final String ForceChangeAPIUrl="ForceChangeAPIUrl"; //强制替换首页默认API地址，防止API失效不更新包的手段
@@ -39,5 +39,23 @@ public class RemoteConfigName {
     public static final String UpdateData_ForceUpdate="ForceUpdate"; // 更新数据_是否强制更新
     public static final String UpdateData_UpdateDesc="UpdateDesc"; // 更新数据_更新描述
     public static final String UpdateData_UpdateDownloadUrl="UpdateDownloadUrl"; // 更新数据_更新下载地址
+    // endregion
+
+    // region 自定义数据
+    public static final String CustomData="CustomData"; // 自定义数据
+
+    //远程控制按钮
+    public static final String CustomData_YOUND="CustomData_YOUND"; // 自定义数据 默认/青年版
+    public static final String CustomData_AGED="CustomData_AGED"; // 自定义数据 老年版
+    public static final String APPModel_HomeButtons="HomeButtons"; // 首页按钮列表
+    public static final String HomeButtons_HistoryButton="HistoryButton"; // 历史按钮
+    public static final String HomeButtons_LiveButton="LiveButton"; // 直播按钮
+    public static final String HomeButtons_SearchButton="SearchButton"; // 搜索按钮
+    public static final String HomeButtons_PushButton="PushButton"; // 推送按钮
+    public static final String HomeButtons_CollectionButton="CollectionButton"; // 收藏按钮
+    public static final String HomeButtons_SettingButton="SettingButton"; // 设置按钮
+    public static final String HomeButtons_CloudGameButton="CloudGameButton"; // 云游戏按钮
+
+
     // endregion
 }
