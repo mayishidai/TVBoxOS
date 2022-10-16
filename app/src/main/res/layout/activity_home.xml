@@ -55,7 +55,7 @@
             android:textAlignment="gravity"
             android:textColor="@color/color_FF5F00"
             android:textSize="@dimen/ts_28"
-            tools:text="V 1.1.11" />
+            tools:text="V:1.1.11" />
     </LinearLayout>
 
     <LinearLayout

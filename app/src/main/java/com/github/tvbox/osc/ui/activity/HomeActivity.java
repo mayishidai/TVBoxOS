@@ -235,7 +235,7 @@ public class HomeActivity extends BaseActivity {
         try {
             PackageManager packageManager = this.getPackageManager();
             PackageInfo packInfo = packageManager.getPackageInfo(this.getPackageName(), 0);
-            this.tvVersion.setText("APP:"+packInfo.versionName);
+            this.tvVersion.setText("V:"+packInfo.versionName);
         }catch (Exception e){
             e.printStackTrace();
         }
