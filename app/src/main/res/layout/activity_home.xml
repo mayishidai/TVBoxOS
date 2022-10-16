@@ -44,6 +44,18 @@
             android:textColor="@android:color/white"
             android:textSize="@dimen/ts_28"
             tools:text="111111111111111" />
+
+        <TextView
+            android:id="@+id/tvVersion"
+            android:layout_width="@dimen/vs_140"
+            android:layout_height="match_parent"
+            android:focusable="false"
+            android:focusableInTouchMode="false"
+            android:gravity="right|center_vertical"
+            android:textAlignment="gravity"
+            android:textColor="@color/color_FF5F00"
+            android:textSize="@dimen/ts_28"
+            tools:text="V 1.1.11" />
     </LinearLayout>
 
     <LinearLayout
