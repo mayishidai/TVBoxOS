@@ -4,11 +4,6 @@ import com.github.tvbox.osc.util.HawkConfig;
 import com.orhanobut.hawk.Hawk;
 
 public class CustomData {
-    public enum AppModelType {
-        YOUND, // 默认/青年版
-        AGED // 老年版
-    }
-
     private static CustomData instance;
     public static CustomData getInstance(){
         if (instance==null)
@@ -16,7 +11,11 @@ public class CustomData {
         return instance;
     }
 
-    // APP模式
+    // region APP模式类型
+    public enum AppModelType {
+        YOUND, // 默认/青年版
+        AGED // 老年版
+    }
     public void SetAppModelType(AppModelType appModelType){
         Hawk.put(HawkConfig.APP_MODEL_TYPE, appModelType);
     }
@@ -39,4 +38,5 @@ public class CustomData {
         }
         return showText;
     }
+    // endregion
 }
