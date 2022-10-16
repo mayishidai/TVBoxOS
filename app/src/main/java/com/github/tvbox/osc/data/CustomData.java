@@ -11,16 +11,18 @@ public class CustomData {
         return instance;
     }
 
+    public static final String APP_MODEL_TYPE = "app_model_type"; // APP模式
+
     // region APP模式类型
     public enum AppModelType {
         YOUND, // 默认/青年版
         AGED // 老年版
     }
     public void SetAppModelType(AppModelType appModelType){
-        Hawk.put(HawkConfig.APP_MODEL_TYPE, appModelType);
+        Hawk.put(APP_MODEL_TYPE, appModelType);
     }
     public AppModelType GetAppModelType(){
-        return Hawk.get(HawkConfig.APP_MODEL_TYPE, AppModelType.YOUND);
+        return Hawk.get(APP_MODEL_TYPE, AppModelType.YOUND);
     }
     public String GetAppModelTypeName() {
         return GetAppModelTypeName(GetAppModelType());
