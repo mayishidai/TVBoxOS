@@ -398,7 +398,7 @@ public class HomeActivity extends BaseActivity {
 
         // region 如果5.0版本以下，自动下载XW
         try{
-            if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.LOLLIPOP + 10 && Hawk.get(HawkConfig.PARSE_WEBVIEW, true)){
+            if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.LOLLIPOP && Hawk.get(HawkConfig.PARSE_WEBVIEW, true)){
                 LOG.d(this, "Android5.0及以下版本，自动下载XWalkView嗅探");
                 Toast.makeText(this, "Android5.0及以下版本，自动下载XWalkView嗅探", Toast.LENGTH_LONG).show();
                 XWalkInitDialog dialog = new XWalkInitDialog(this);
