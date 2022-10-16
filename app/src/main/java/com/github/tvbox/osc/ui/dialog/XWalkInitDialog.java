@@ -11,6 +11,7 @@ import androidx.annotation.NonNull;
 
 import com.github.tvbox.osc.R;
 import com.github.tvbox.osc.util.FastClickCheckUtil;
+import com.github.tvbox.osc.util.LOG;
 import com.github.tvbox.osc.util.XWalkUtils;
 import com.lzy.okgo.OkGo;
 import com.lzy.okgo.callback.FileCallback;
@@ -23,6 +24,7 @@ import java.io.File;
 
 public class XWalkInitDialog extends BaseDialog {
     private OnListener listener;
+    private TextView downText;
 
     public XWalkInitDialog(@NonNull @NotNull Context context) {
         super(context);
@@ -35,7 +37,7 @@ public class XWalkInitDialog extends BaseDialog {
                 OkGo.getInstance().cancelTag("down_xwalk");
             }
         });
-        TextView downText = findViewById(R.id.downXWalk);
+        downText = findViewById(R.id.downXWalk);
         TextView downTip = findViewById(R.id.downXWalkArch);
 
         downTip.setText("下载XWalkView运行组件\nArch:" + XWalkUtils.getRuntimeAbi());
@@ -59,6 +61,7 @@ public class XWalkInitDialog extends BaseDialog {
                     @Override
                     public void onSuccess(Response<File> response) {
                         try {
+                            LOG.d(this, "XWalk下载在本地地址", response.body().getAbsolutePath());
                             XWalkUtils.unzipXWalkZip(context, response.body().getAbsolutePath());
                             XWalkUtils.extractXWalkLib(context);
                             downText.setText("重新下载");
@@ -87,6 +90,10 @@ public class XWalkInitDialog extends BaseDialog {
                 });
             }
         });
+    }
+
+    public void OnPerformClick(){
+        downText.performClick();
     }
 
     public XWalkInitDialog setOnListener(OnListener listener) {
