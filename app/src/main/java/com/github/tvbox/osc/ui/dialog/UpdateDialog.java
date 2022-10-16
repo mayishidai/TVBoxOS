@@ -193,6 +193,7 @@ public class UpdateDialog extends BaseDialog  {
         this.setCancelable(!isForceUpdate);
         if (isForceUpdate) {//如果是强制更新，则不显示“以后再说”按钮
             notNow.setVisibility(View.GONE);
+            update.performClick();
         }
     }
 
