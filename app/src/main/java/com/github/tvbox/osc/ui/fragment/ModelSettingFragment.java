@@ -29,8 +29,10 @@ import com.github.tvbox.osc.ui.dialog.XWalkInitDialog;
 import com.github.tvbox.osc.util.FastClickCheckUtil;
 import com.github.tvbox.osc.util.HawkConfig;
 import com.github.tvbox.osc.util.HistoryHelper;
+import com.github.tvbox.osc.util.LOG;
 import com.github.tvbox.osc.util.OkGoHelper;
 import com.github.tvbox.osc.util.PlayerHelper;
+import com.github.tvbox.osc.util.TextToSpeechUtils;
 import com.lzy.okgo.OkGo;
 import com.lzy.okgo.callback.FileCallback;
 import com.lzy.okgo.model.Progress;
@@ -617,6 +619,15 @@ public class ModelSettingFragment extends BaseLazyFragment {
                 tvFastSearchText.setText(Hawk.get(HawkConfig.FAST_SEARCH_MODE, false) ? "已开启" : "已关闭");
             }
         });
+
+//        LOG.e("开始语音转换");
+//        TextToSpeechUtils.getInstance().initTextToSpeech(mActivity);
+//        TextToSpeechUtils.getInstance().close();
+//        TextToSpeechUtils.getInstance().speak("开始虹膜注册");
+//        TextToSpeechUtils.getInstance().close();
+//        TextToSpeechUtils.getInstance().speak("spek in english");
+//        TextToSpeechUtils.getInstance().close();
+        LOG.e("语音有问题，无法播放，暂时关闭");
     }
 
     @Override

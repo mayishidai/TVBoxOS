@@ -9,6 +9,7 @@ import java.util.Locale;
 public class TextToSpeechUtils {
     private static TextToSpeechUtils textToSpeechUtils;
     private TextToSpeech mTextToSpeech;    // TTS对象
+    private boolean isInitSuccess;
 
     public static TextToSpeechUtils getInstance() {
         if (textToSpeechUtils == null) {
@@ -21,6 +22,9 @@ public class TextToSpeechUtils {
     }
 
     public void initTextToSpeech(Context context) {
+        if (isInitSuccess){
+            return;
+        }
         mTextToSpeech = new TextToSpeech(context, new TextToSpeech.OnInitListener() {
             @Override
             public void onInit(int status) {
@@ -36,6 +40,8 @@ public class TextToSpeechUtils {
             系统设置中，找到文字转语音（TTS）输出，将引擎修改为科大讯飞语音引擎3.0即可。重新启动测试
             Demo即可体验到文字转中文语言。
              */
+                    isInitSuccess = true;
+                    LOG.d("TextToSpeechUtils", "语音TTS识别初始化成功");
                     // setLanguage设置语言
                     int result = mTextToSpeech.setLanguage(Locale.CHINA);
                     // TextToSpeech.LANG_MISSING_DATA：表示语言的数据丢失
@@ -44,6 +50,10 @@ public class TextToSpeechUtils {
                             || result == TextToSpeech.LANG_NOT_SUPPORTED) {
                         Toast.makeText(context, "数据丢失或不支持", Toast.LENGTH_SHORT).show();
                     }
+                }else{
+                    isInitSuccess = true;
+                    LOG.e("TextToSpeechUtils", "语音TTS识别初始化失败");
+                    Toast.makeText(context, "语音TTS识别初始化失败", Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -54,6 +64,9 @@ public class TextToSpeechUtils {
     }
 
     public void close(){
+        if (!isInitSuccess){
+            return;
+        }
         if (mTextToSpeech != null) {
             mTextToSpeech.stop();        // 不管是否正在朗读TTS都被打断
             mTextToSpeech.shutdown();    // 关闭，释放资源
@@ -62,6 +75,9 @@ public class TextToSpeechUtils {
     }
 
     public void speak(String speakStr){
+        if (!isInitSuccess){
+            return;
+        }
         if (mTextToSpeech != null && !mTextToSpeech.isSpeaking()) {
             mTextToSpeech.speak(speakStr, TextToSpeech.QUEUE_ADD, null);
         }
