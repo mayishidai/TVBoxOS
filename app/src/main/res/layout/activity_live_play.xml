@@ -207,7 +207,9 @@
 
 		</LinearLayout>
 	</LinearLayout>
-<!--添加EPG显示，更改样式 by 龍-->
+	</xyz.doikki.videoplayer.player.VideoView>
+
+	<!--添加EPG显示，更改样式 by 龍-->
 
 
 	<LinearLayout
@@ -627,5 +629,4 @@
 			android:textSize="@dimen/vs_20" />
 	</RelativeLayout>
 
-	</xyz.doikki.videoplayer.player.VideoView>
 </FrameLayout>

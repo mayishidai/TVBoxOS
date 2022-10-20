@@ -137,7 +137,8 @@ public class UserFragment extends BaseLazyFragment implements View.OnClickListen
         tvSetting.setVisibility(CustomData.getInstance().GetHomeButtonVisition(RemoteConfigName.HomeButtons_SettingButton)?View.VISIBLE:View.GONE);
         TvRecyclerView tvHotList = findViewById(R.id.tvHotList);
         tvHotList.setHasFixedSize(true);
-        tvHotList.setLayoutManager(new V7GridLayoutManager(this.mContext, 6));        homeHotVodAdapter = new HomeHotVodAdapter();
+        tvHotList.setLayoutManager(new V7GridLayoutManager(this.mContext, 6));
+        homeHotVodAdapter = new HomeHotVodAdapter();
         homeHotVodAdapter.setOnItemClickListener(new BaseQuickAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(BaseQuickAdapter adapter, View view, int position) {

@@ -67,7 +67,7 @@ public class CustomData {
                 appModelName,
                 RemoteConfigName.APPModel_HomeButtons,
                 buttonName);
-        return element==null||element.getAsBoolean();
+        return element.isJsonNull()||element.getAsBoolean();
     }
     // endregion
 }
