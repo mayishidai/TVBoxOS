@@ -11,15 +11,15 @@ import androidx.annotation.NonNull;
  * 并对部分api做了封装，方便使用
  */
 public class ControlWrapper implements MediaPlayerControl, IVideoController {
-    
+
     private MediaPlayerControl mPlayerControl;
     private IVideoController mController;
-    
+
     public ControlWrapper(@NonNull MediaPlayerControl playerControl, @NonNull IVideoController controller) {
         mPlayerControl = playerControl;
         mController = controller;
     }
-    
+
     @Override
     public void start() {
         mPlayerControl.start();
@@ -189,7 +189,7 @@ public class ControlWrapper implements MediaPlayerControl, IVideoController {
         if (isFullScreen()) {
             stopFullScreen();
             if (width > height) {
-               activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+                activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
             }
         } else {
             startFullScreen();

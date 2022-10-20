@@ -30,6 +30,7 @@ import com.github.tvbox.osc.ui.adapter.HomeHotVodAdapter;
 import com.github.tvbox.osc.util.FastClickCheckUtil;
 import com.github.tvbox.osc.util.HawkConfig;
 import com.github.tvbox.osc.util.RemoteConfigName;
+import com.github.tvbox.osc.util.UA;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -39,6 +40,7 @@ import com.lzy.okgo.callback.AbsCallback;
 import com.lzy.okgo.model.Response;
 import com.orhanobut.hawk.Hawk;
 import com.owen.tvrecyclerview.widget.TvRecyclerView;
+import com.owen.tvrecyclerview.widget.V7GridLayoutManager;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -134,7 +136,8 @@ public class UserFragment extends BaseLazyFragment implements View.OnClickListen
         tvSearch.setVisibility(CustomData.getInstance().GetHomeButtonVisition(RemoteConfigName.HomeButtons_SearchButton)?View.VISIBLE:View.GONE);
         tvSetting.setVisibility(CustomData.getInstance().GetHomeButtonVisition(RemoteConfigName.HomeButtons_SettingButton)?View.VISIBLE:View.GONE);
         TvRecyclerView tvHotList = findViewById(R.id.tvHotList);
-        homeHotVodAdapter = new HomeHotVodAdapter();
+        tvHotList.setHasFixedSize(true);
+        tvHotList.setLayoutManager(new V7GridLayoutManager(this.mContext, 6));        homeHotVodAdapter = new HomeHotVodAdapter();
         homeHotVodAdapter.setOnItemClickListener(new BaseQuickAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(BaseQuickAdapter adapter, View view, int position) {
@@ -217,11 +220,17 @@ public class UserFragment extends BaseLazyFragment implements View.OnClickListen
             if (requestDay.equals(today)) {
                 String json = Hawk.get("home_hot", "");
                 if (!json.isEmpty()) {
-                    adapter.setNewData(loadHots(json));
-                    return;
+                    ArrayList<Movie.Video> hotMovies = loadHots(json);
+                    if (hotMovies != null && hotMovies.size() > 0) {
+                        adapter.setNewData(hotMovies);
+                        return;
+                    }
                 }
             }
-            OkGo.<String>get("https://movie.douban.com/j/new_search_subjects?sort=U&range=0,10&tags=&playable=1&start=0&year_range=" + year + "," + year).execute(new AbsCallback<String>() {
+            String doubanUrl = "https://movie.douban.com/j/new_search_subjects?sort=U&range=0,10&tags=&playable=1&start=0&year_range=" + year + "," + year;
+            OkGo.<String>get(doubanUrl)
+                    .headers("User-Agent", UA.randomOne())
+                    .execute(new AbsCallback<String>() {
                 @Override
                 public void onSuccess(Response<String> response) {
                     String netJson = response.body();

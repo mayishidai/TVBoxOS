@@ -114,7 +114,7 @@ public class SearchSubtitleDialog extends BaseDialog {
         wd = wd.replaceAll("(?:：|\\:|）|\\)|\\]|】|\\.)", " ");
         int len = wd.length();
         int finalLen = len >= 36 ? 36 : len;
-        wd = wd.substring(0, finalLen);
+        wd = wd.substring(0, finalLen).trim();
         subtitleSearchEt.setText(wd);
         subtitleSearchEt.setSelection(wd.length());
         subtitleSearchEt.requestFocus();
@@ -145,11 +145,12 @@ public class SearchSubtitleDialog extends BaseDialog {
                     mGridView.post(new Runnable() {
                         @Override
                         public void run() {
-                            Toast.makeText(getContext(), "查询出错", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getContext(), "未查询到匹配字幕", Toast.LENGTH_SHORT).show();
                         }
                     });
                     return;
                 }
+
                 if (data.size() > 0) {
                     mGridView.requestFocus();
                     if (subtitleData.getIsZip()) {
