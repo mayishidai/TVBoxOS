@@ -41,6 +41,7 @@ import com.lzy.okgo.model.Response;
 import com.orhanobut.hawk.Hawk;
 import com.owen.tvrecyclerview.widget.TvRecyclerView;
 import com.owen.tvrecyclerview.widget.V7GridLayoutManager;
+import com.owen.tvrecyclerview.widget.V7LinearLayoutManager;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -65,6 +66,8 @@ public class UserFragment extends BaseLazyFragment implements View.OnClickListen
     private LinearLayout tvGame;
     private HomeHotVodAdapter homeHotVodAdapter;
     private List<Movie.Video> homeSourceRec;
+    TvRecyclerView tvHotList1;
+    TvRecyclerView tvHotList2;
 
     public static UserFragment newInstance() {
         return new UserFragment();
@@ -81,6 +84,15 @@ public class UserFragment extends BaseLazyFragment implements View.OnClickListen
 
     @Override
     protected void onFragmentResume() {
+        if(Hawk.get(HawkConfig.HOME_REC_STYLE, false)){
+            tvHotList1.setVisibility(View.VISIBLE);
+            tvHotList2.setVisibility(View.GONE);
+            tvHotList1.setHasFixedSize(true);
+            tvHotList1.setLayoutManager(new V7GridLayoutManager(this.mContext, 5));
+        }else {
+            tvHotList1.setVisibility(View.GONE);
+            tvHotList2.setVisibility(View.VISIBLE);
+        }
         super.onFragmentResume();
         if (Hawk.get(HawkConfig.HOME_REC, 0) == 2) {
             List<VodInfo> allVodRecord = RoomDataManger.getAllVodRecord(10);
@@ -135,9 +147,8 @@ public class UserFragment extends BaseLazyFragment implements View.OnClickListen
         tvLive.setVisibility(CustomData.getInstance().GetHomeButtonVisition(RemoteConfigName.HomeButtons_LiveButton)?View.VISIBLE:View.GONE);
         tvSearch.setVisibility(CustomData.getInstance().GetHomeButtonVisition(RemoteConfigName.HomeButtons_SearchButton)?View.VISIBLE:View.GONE);
         tvSetting.setVisibility(CustomData.getInstance().GetHomeButtonVisition(RemoteConfigName.HomeButtons_SettingButton)?View.VISIBLE:View.GONE);
-        TvRecyclerView tvHotList = findViewById(R.id.tvHotList);
-        tvHotList.setHasFixedSize(true);
-        tvHotList.setLayoutManager(new V7GridLayoutManager(this.mContext, 6));
+        tvHotList1 = findViewById(R.id.tvHotList1);
+        tvHotList2 = findViewById(R.id.tvHotList2);
         homeHotVodAdapter = new HomeHotVodAdapter();
         homeHotVodAdapter.setOnItemClickListener(new BaseQuickAdapter.OnItemClickListener() {
             @Override
@@ -181,7 +192,7 @@ public class UserFragment extends BaseLazyFragment implements View.OnClickListen
             }
         });
 
-        tvHotList.setOnItemListener(new TvRecyclerView.OnItemListener() {
+        tvHotList1.setOnItemListener(new TvRecyclerView.OnItemListener() {
             @Override
             public void onItemPreSelected(TvRecyclerView parent, View itemView, int position) {
                 itemView.animate().scaleX(1.0f).scaleY(1.0f).setDuration(300).setInterpolator(new BounceInterpolator()).start();
@@ -197,7 +208,24 @@ public class UserFragment extends BaseLazyFragment implements View.OnClickListen
 
             }
         });
-        tvHotList.setAdapter(homeHotVodAdapter);
+        tvHotList1.setAdapter(homeHotVodAdapter);
+        tvHotList2.setOnItemListener(new TvRecyclerView.OnItemListener() {
+            @Override
+            public void onItemPreSelected(TvRecyclerView parent, View itemView, int position) {
+                itemView.animate().scaleX(1.0f).scaleY(1.0f).setDuration(300).setInterpolator(new BounceInterpolator()).start();
+            }
+
+            @Override
+            public void onItemSelected(TvRecyclerView parent, View itemView, int position) {
+                itemView.animate().scaleX(1.05f).scaleY(1.05f).setDuration(300).setInterpolator(new BounceInterpolator()).start();
+            }
+
+            @Override
+            public void onItemClick(TvRecyclerView parent, View itemView, int position) {
+
+            }
+        });
+        tvHotList2.setAdapter(homeHotVodAdapter);
 
         initHomeHotVod(homeHotVodAdapter);
     }
