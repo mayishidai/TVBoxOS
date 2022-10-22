@@ -8,6 +8,7 @@ import com.github.tvbox.osc.base.BaseActivity;
 import com.github.tvbox.osc.ui.activity.HomeActivity;
 import com.github.tvbox.osc.ui.dialog.UpdateDialog;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.lzy.okgo.OkGo;
@@ -62,12 +63,7 @@ public class RemoteConfig {
                     jsonObject = jsonObject.get(key).getAsJsonObject();
             }
         }
-        return new JsonElement() {
-            @Override
-            public JsonElement deepCopy() {
-                return null;
-            }
-        };
+        return JsonNull.INSTANCE;
     }
 
     private static void InitRemoteConfig(String config){
