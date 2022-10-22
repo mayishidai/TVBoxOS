@@ -29,7 +29,7 @@ public class RemoteConfig {
     public static void Init(Context mContext){
         RemoteConfig.mContext = mContext;
         if (ToolUtils.isApkInDebug(mContext)){
-            remoteUrl = "http://a.mayishidai.cn:7080/tv/apk/remote.ini";
+            remoteUrl = "http://a.mayishidai.cn:7080/tv/apk/remote_debug.ini";
         }else{
             remoteUrl = "https://mayishidai.cn/tv/apk/remote.ini";
         }
