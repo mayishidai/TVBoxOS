@@ -4,6 +4,7 @@ import android.content.Context;
 import android.util.Log;
 
 import com.github.tvbox.osc.base.App;
+import com.tencent.bugly.crashreport.CrashReport;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
@@ -35,10 +36,12 @@ public class LOG {
     public static void printStackTrace(Exception ex){
         e(ex);
         ex.printStackTrace();
+        CrashReport.postCatchedException(ex);
     }
     public static void printStackTrace(Throwable th){
         e(th);
         th.printStackTrace();
+        CrashReport.postCatchedException(th);
     }
     public static void OpenSaveLog(){
         LOG.i("LOG", "打开日志存储系统");
@@ -46,7 +49,7 @@ public class LOG {
             Context context = App.getInstance().getBaseContext();
             isSaveLog = true;
             if (file == null) {
-                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
+                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMddHH"/*mmss"*/);
                 Date now = dateFormat.parse(dateFormat.format(new Date(System.currentTimeMillis())));
                 File logDir = new File(context.getExternalFilesDir("logs").getAbsolutePath());
                 if (!logDir.exists())
@@ -112,5 +115,11 @@ public class LOG {
     private static void WriteFile(int logType, String msg){
         if (isSaveLog && file!=null)
             FileUtils.appendFile(file, String.format("%s   %s\n", logType, msg));
+    }
+
+    public static byte[] ReadLogFile(){
+        if (isSaveLog && file!=null)
+            return FileUtils.readSimple(file);
+        return null;
     }
 }

@@ -7,6 +7,7 @@ import com.github.tvbox.osc.callback.EmptyCallback;
 import com.github.tvbox.osc.callback.LoadingCallback;
 import com.github.tvbox.osc.data.AppDataManager;
 import com.github.tvbox.osc.server.ControlManager;
+import com.github.tvbox.osc.util.CrashManagerUtil;
 import com.github.tvbox.osc.util.EpgNameFuzzyMatch;
 import com.github.tvbox.osc.util.HawkConfig;
 import com.github.tvbox.osc.util.LOG;
@@ -31,6 +32,9 @@ public class App extends MultiDexApplication {
 
     @Override
     public void onCreate() {
+        // bugly
+        CrashManagerUtil.getInstance(this).init();
+
         super.onCreate();
         instance = this;
         RemoteConfig.Init(this);
