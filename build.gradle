@@ -29,6 +29,41 @@ allprojects {
     }
 }
 
+//将打包好的内容复制到指定目录，方便自动上传
+subprojects() {
+    //assembleRelease这个任务，就是我们普通的打包任务。打release包。
+    def releaseTasks = project.getTasksByName("assembleRelease", false)
+    copyApkFile(releaseTasks, project)
+}
+def copyApkFile(Set<Task> tasks, Project project) {
+    def fromDir = "/release"
+    for (task in tasks) {
+        def dir = project.getProjectDir().getAbsolutePath()
+        println "assemble release dir = $dir"
+        //我们目前存放打包后apk的目录
+        def apkDir = dir + fromDir
+        def file = new File(apkDir)
+
+        if (file.exists()) {
+            def isDelete = delete(apkDir)
+            println "del: $isDelete"
+        }
+        //在task执行完成之后
+        task.doLast {
+            if (file.exists()) {
+                //将生成的apk整个目录复制到我们指定位置
+                copy {
+                    println "copy dir = ${file.getAbsolutePath()}"
+                    from apkDir
+                    //  into rootProject.getRootDir().getAbsolutePath() + "/apk/"
+                    into "D:/PythonProject/PythonProjects/projects/tvbox/apk/"
+                }
+            }
+        }
+    }
+}
+
+
 task clean(type: Delete) {
     delete rootProject.buildDir
 }
