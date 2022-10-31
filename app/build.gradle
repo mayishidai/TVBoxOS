@@ -109,11 +109,11 @@ dependencies {
 android.applicationVariants.all {
     variant ->
         variant.outputs.all { output ->
-            def date = new Date().format("yyyy_MM_dd", TimeZone.getTimeZone("GMT+08"))
+            // def date = new Date().format("yyyy_MM_dd", TimeZone.getTimeZone("GMT+08"))
             if (variant.buildType.name == 'debug'){
-                output.outputFileName = "tvbox_${android.defaultConfig.versionName}_${date}_debug.apk"
+                output.outputFileName = "tvbox_${android.defaultConfig.versionName}_debug.apk"
             }else if (variant.buildType.name == 'release'){
-                output.outputFileName = "tvbox_${date}.apk"
+                output.outputFileName = "tvbox_${android.defaultConfig.versionName}.apk"
                 println(String.format("UpdateUrl->https://mayishidai.cn/tv/apk/%s", URLEncoder.encode(output.outputFileName, "UTF-8")));
             }
         }
