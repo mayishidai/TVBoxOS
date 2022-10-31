@@ -132,7 +132,7 @@ public class UpdateDialog extends BaseDialog  {
         IsNewUpdate = false;
         JsonObject updateJosn = null;
         try {
-            updateJosn = RemoteConfig.GetValue(RemoteConfigName.UpdateData).getAsJsonObject();
+            updateJosn = RemoteConfig.GetAppModelValue(RemoteConfigName.UpdateData).getAsJsonObject();
         }catch (Exception e){
             e.printStackTrace();
             return;

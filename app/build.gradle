@@ -8,7 +8,7 @@ android {
         minSdkVersion 16
         targetSdkVersion 26
         versionCode 1
-        versionName '1.0.12'
+        versionName '1.0.14'
         multiDexEnabled true
         //设置room的Schema的位置
         javaCompileOptions {
@@ -107,7 +107,7 @@ dependencies {
 android.applicationVariants.all {
     variant ->
         variant.outputs.all { output ->
-            def date = new Date().format("yyyy年MM月dd日", TimeZone.getTimeZone("GMT+08"))
+            def date = new Date().format("yyyy_MM_dd", TimeZone.getTimeZone("GMT+08"))
             if (variant.buildType.name == 'debug'){
                 output.outputFileName = "tvbox_${android.defaultConfig.versionName}_${date}_debug.apk"
             }else if (variant.buildType.name == 'release'){

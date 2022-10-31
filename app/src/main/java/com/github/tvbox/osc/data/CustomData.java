@@ -33,13 +33,21 @@ public class CustomData {
             currActivity.jumpActivity(HomeActivity.class, bundle);
         }
     }
-    public AppModelType GetAppModelType(){
+    public AppModelType GetCurrAppModelType(){
         return Hawk.get(APP_MODEL_TYPE, AppModelType.YOUND);
     }
-    public String GetAppModelTypeName() {
-        return GetAppModelTypeName(GetAppModelType());
+    public String GetCurrAppModelTypeJsonName(){
+        if (GetCurrAppModelType()==AppModelType.YOUND){
+            return RemoteConfigName.CustomData_YOUND;
+        }else if (GetCurrAppModelType()==AppModelType.AGED) {
+            return RemoteConfigName.CustomData_AGED;
+        }
+        return RemoteConfigName.CustomData_YOUND;
     }
-    public String GetAppModelTypeName(AppModelType appModelType){
+    public String GetCurrAppModelTypeName() {
+        return GetCurrAppModelTypeName(GetCurrAppModelType());
+    }
+    public String GetCurrAppModelTypeName(AppModelType appModelType){
         String showText = "未定义类型";
         switch (appModelType)
         {
@@ -56,15 +64,9 @@ public class CustomData {
 
     // region 首页按钮控制
     public boolean GetHomeButtonVisition(String buttonName){
-        String appModelName = RemoteConfigName.CustomData_YOUND;
-        if (GetAppModelType()==AppModelType.YOUND){
-            appModelName = RemoteConfigName.CustomData_YOUND;
-        }else if (GetAppModelType()==AppModelType.AGED) {
-            appModelName = RemoteConfigName.CustomData_AGED;
-        }
         JsonElement element = RemoteConfig.GetValue(
                 RemoteConfigName.CustomData,
-                appModelName,
+                GetCurrAppModelTypeJsonName(),
                 RemoteConfigName.APPModel_HomeButtons,
                 buttonName);
         return element.isJsonNull()||element.getAsBoolean();

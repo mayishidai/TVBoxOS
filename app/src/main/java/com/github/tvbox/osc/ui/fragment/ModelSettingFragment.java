@@ -20,7 +20,6 @@ import com.github.tvbox.osc.data.CustomData;
 import com.github.tvbox.osc.ui.activity.HomeActivity;
 import com.github.tvbox.osc.ui.activity.SettingActivity;
 import com.github.tvbox.osc.ui.adapter.SelectDialogAdapter;
-import com.github.tvbox.osc.ui.dialog.AboutDialog;
 import com.github.tvbox.osc.ui.dialog.ApiDialog;
 import com.github.tvbox.osc.ui.dialog.BackupDialog;
 import com.github.tvbox.osc.ui.dialog.UpdateDialog;
@@ -33,7 +32,6 @@ import com.github.tvbox.osc.util.HistoryHelper;
 import com.github.tvbox.osc.util.LOG;
 import com.github.tvbox.osc.util.OkGoHelper;
 import com.github.tvbox.osc.util.PlayerHelper;
-import com.github.tvbox.osc.util.TextToSpeechUtils;
 import com.lzy.okgo.OkGo;
 import com.lzy.okgo.callback.FileCallback;
 import com.lzy.okgo.model.Progress;
@@ -125,12 +123,12 @@ public class ModelSettingFragment extends BaseLazyFragment {
         tvPlay.setText(PlayerHelper.getPlayerName(Hawk.get(HawkConfig.PLAY_TYPE, 0)));
         tvRender.setText(PlayerHelper.getRenderName(Hawk.get(HawkConfig.PLAY_RENDER, 0)));
         tvShowWallpaperIndexText.setText(ApiConfig.get().getShowWallpaperIndex());
-        appModelSelectText.setText(CustomData.getInstance().GetAppModelTypeName());
+        appModelSelectText.setText(CustomData.getInstance().GetCurrAppModelTypeName());
         findViewById(R.id.appModel).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 FastClickCheckUtil.check(view);
-                int defaultPos = CustomData.getInstance().GetAppModelType().ordinal();
+                int defaultPos = CustomData.getInstance().GetCurrAppModelType().ordinal();
                 ArrayList<Integer> types = new ArrayList<>();
                 types.add(CustomData.AppModelType.YOUND.ordinal());
                 types.add(CustomData.AppModelType.AGED.ordinal());
@@ -140,13 +138,13 @@ public class ModelSettingFragment extends BaseLazyFragment {
                     @Override
                     public void click(Integer value, int pos) {
                         CustomData.getInstance().SetAppModelType(CustomData.AppModelType.values()[pos]);
-                        appModelSelectText.setText(CustomData.getInstance().GetAppModelTypeName());
+                        appModelSelectText.setText(CustomData.getInstance().GetCurrAppModelTypeName());
                         dialog.dismiss();
                     }
 
                     @Override
                     public String getDisplay(Integer val) {
-                        return CustomData.getInstance().GetAppModelTypeName(CustomData.AppModelType.values()[val]);
+                        return CustomData.getInstance().GetCurrAppModelTypeName(CustomData.AppModelType.values()[val]);
                     }
                 }, new DiffUtil.ItemCallback<Integer>() {
                     @Override

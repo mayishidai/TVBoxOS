@@ -302,7 +302,7 @@ public class GridFragment extends BaseLazyFragment {
     }
 
     public void showFilter() {
-        if (CustomData.getInstance().GetAppModelType() == CustomData.AppModelType.AGED){
+        if (CustomData.getInstance().GetCurrAppModelType() == CustomData.AppModelType.AGED){
             LOG.d(this, "老年版本不显示筛选选项列表！");
             return;
         }

@@ -5,6 +5,7 @@ import android.os.Bundle;
 
 import com.github.other.xunfei.WebIATWS;
 import com.github.tvbox.osc.base.BaseActivity;
+import com.github.tvbox.osc.data.CustomData;
 import com.github.tvbox.osc.ui.activity.HomeActivity;
 import com.github.tvbox.osc.ui.dialog.UpdateDialog;
 import com.google.gson.JsonElement;
@@ -66,6 +67,21 @@ public class RemoteConfig {
         return JsonNull.INSTANCE;
     }
 
+    public static JsonElement GetAppModelValue(String... keys){
+        JsonElement element = GetValue(RemoteConfigName.CustomData, CustomData.getInstance().GetCurrAppModelTypeJsonName());
+        if (element!=null && !element.isJsonNull()) {
+            JsonObject jsonObject = element.getAsJsonObject();
+            for (int i = 0; i < keys.length; i++) {
+                String key = keys[i];
+                if (i == keys.length - 1)
+                    return jsonObject.get(key);
+                else
+                    jsonObject = jsonObject.get(key).getAsJsonObject();
+            }
+        }
+        return JsonNull.INSTANCE;
+    }
+
     private static void InitRemoteConfig(String config){
         LOG.i("RemoteConfig", "获取到远端内容", config);
         remoteJsonObject = JsonParser.parseString(config).getAsJsonObject();
@@ -83,9 +99,9 @@ public class RemoteConfig {
 
         // region 默认配置
         // region 默认API地址
-        if (!GetValue(RemoteConfigName.APIUrl).isJsonNull() && !GetValue(RemoteConfigName.APIUrl).getAsString().isEmpty()) {
-            String remoteValue = GetValue(RemoteConfigName.APIUrl).getAsString();
-            boolean forceChangeAPIUrl = !GetValue(RemoteConfigName.ForceChangeAPIUrl).isJsonNull() && GetValue(RemoteConfigName.ForceChangeAPIUrl).getAsBoolean();
+        if (!GetAppModelValue(RemoteConfigName.APIUrl).isJsonNull() && !GetAppModelValue(RemoteConfigName.APIUrl).getAsString().isEmpty()) {
+            String remoteValue = GetAppModelValue(RemoteConfigName.APIUrl).getAsString();
+            boolean forceChangeAPIUrl = !GetAppModelValue(RemoteConfigName.ForceChangeAPIUrl).isJsonNull() && GetAppModelValue(RemoteConfigName.ForceChangeAPIUrl).getAsBoolean();
             if (forceChangeAPIUrl)
                 LOG.e("RemoteConfig", "远端强制替换APIUrl地址");
             if(SetRemoteHawkConfig(HawkConfig.API_URL, remoteValue,"默认首页API", forceChangeAPIUrl)){
@@ -99,50 +115,50 @@ public class RemoteConfig {
         }
         // endregion 默认API地址
         // region 默认首页数据源
-        if (!GetValue(RemoteConfigName.HomeID).isJsonNull()) {
-            String remoteValue =  GetValue(RemoteConfigName.HomeID).getAsString();
+        if (!GetAppModelValue(RemoteConfigName.HomeID).isJsonNull()) {
+            String remoteValue = GetAppModelValue(RemoteConfigName.HomeID).getAsString();
             SetRemoteHawkConfig(HawkConfig.HOME_API, remoteValue,"默认首页数据源", false);
         }
         // endregion 默认首页数据源
         // region 默认首页推荐
-        if (!GetValue(RemoteConfigName.HomeShowType).isJsonNull()) {
-            int remoteValue =  GetValue(RemoteConfigName.HomeShowType).getAsInt();
+        if (!GetAppModelValue(RemoteConfigName.HomeShowType).isJsonNull()) {
+            int remoteValue =  GetAppModelValue(RemoteConfigName.HomeShowType).getAsInt();
             SetRemoteHawkConfig(HawkConfig.HOME_REC, remoteValue,"默认首页推荐", false);
         }
         // endregion 默认首页推荐
         // region 默认搜索展示
-        if (!GetValue(RemoteConfigName.HomeSearchType).isJsonNull()) {
-            int remoteValue =  GetValue(RemoteConfigName.HomeSearchType).getAsInt();
+        if (!GetAppModelValue(RemoteConfigName.HomeSearchType).isJsonNull()) {
+            int remoteValue =  GetAppModelValue(RemoteConfigName.HomeSearchType).getAsInt();
             SetRemoteHawkConfig(HawkConfig.SEARCH_VIEW, remoteValue,"默认搜索展示", false);
         }
         // endregion 默认搜索展示
         // region 默认聚合模式
-        if (!GetValue(RemoteConfigName.HomeFastSearch).isJsonNull()) {
-            boolean remoteValue =  GetValue(RemoteConfigName.HomeFastSearch).getAsBoolean();
+        if (!GetAppModelValue(RemoteConfigName.HomeFastSearch).isJsonNull()) {
+            boolean remoteValue =  GetAppModelValue(RemoteConfigName.HomeFastSearch).getAsBoolean();
             SetRemoteHawkConfig(HawkConfig.FAST_SEARCH_MODE, remoteValue,"默认聚合模式", false);
         }
         // endregion 默认聚合模式
         // region 默认安全DNS
-        if (!GetValue(RemoteConfigName.HomeDNSType).isJsonNull()) {
-            int remoteValue =  GetValue(RemoteConfigName.HomeDNSType).getAsInt();
+        if (!GetAppModelValue(RemoteConfigName.HomeDNSType).isJsonNull()) {
+            int remoteValue =  GetAppModelValue(RemoteConfigName.HomeDNSType).getAsInt();
             SetRemoteHawkConfig(HawkConfig.DOH_URL, remoteValue,"默认安全DNS", false);
         }
         // endregion 默认安全DNS
         // region 默认历史记录
-        if (!GetValue(RemoteConfigName.HomeHistoryNum).isJsonNull()) {
-            int remoteValue =  GetValue(RemoteConfigName.HomeHistoryNum).getAsInt();
+        if (!GetAppModelValue(RemoteConfigName.HomeHistoryNum).isJsonNull()) {
+            int remoteValue =  GetAppModelValue(RemoteConfigName.HomeHistoryNum).getAsInt();
             SetRemoteHawkConfig(HawkConfig.HISTORY_NUM, remoteValue,"默认历史记录", false);
         }
         // endregion 默认历史记录
         // region 默认画面缩放
-        if (!GetValue(RemoteConfigName.HomePictureZoom).isJsonNull()) {
-            int remoteValue =  GetValue(RemoteConfigName.HomePictureZoom).getAsInt();
+        if (!GetAppModelValue(RemoteConfigName.HomePictureZoom).isJsonNull()) {
+            int remoteValue =  GetAppModelValue(RemoteConfigName.HomePictureZoom).getAsInt();
             SetRemoteHawkConfig(HawkConfig.PLAY_SCALE, remoteValue,"默认画面缩放", false);
         }
         // endregion 默认画面缩放
         // region 默认窗口预览
-        if (!GetValue(RemoteConfigName.HomeWindowPreview).isJsonNull()) {
-            boolean remoteValue =  GetValue(RemoteConfigName.HomeWindowPreview).getAsBoolean();
+        if (!GetAppModelValue(RemoteConfigName.HomeWindowPreview).isJsonNull()) {
+            boolean remoteValue =  GetAppModelValue(RemoteConfigName.HomeWindowPreview).getAsBoolean();
             SetRemoteHawkConfig(HawkConfig.SHOW_PREVIEW, remoteValue,"默认窗口预览", false);
         }
         // endregion 默认窗口预览
@@ -206,10 +222,10 @@ public class RemoteConfig {
         //endregion
 
         // region 默认更新地址
-        if (!GetValue(RemoteConfigName.UpdateData).isJsonNull() && GetValue(RemoteConfigName.UpdateData).getAsJsonObject() != null) {
-            JsonObject updateData = GetValue(RemoteConfigName.UpdateData).getAsJsonObject();
+        if (!GetAppModelValue(RemoteConfigName.UpdateData).isJsonNull() && GetAppModelValue(RemoteConfigName.UpdateData).getAsJsonObject() != null) {
+            JsonObject updateData = GetAppModelValue(RemoteConfigName.UpdateData).getAsJsonObject();
             LOG.i("RemoteConfig", "★远端设置", "默认更新数据", updateData.toString());
-            if (!GetValue(RemoteConfigName.IsForceUpdate).isJsonNull() && GetValue(RemoteConfigName.IsForceUpdate).getAsBoolean()){
+            if (!GetAppModelValue(RemoteConfigName.IsForceUpdate).isJsonNull() && GetAppModelValue(RemoteConfigName.IsForceUpdate).getAsBoolean()){
                 LOG.i("RemoteConfig", "★远端设置", "启动强制显示更新");
                 UpdateDialog.checkUpdate(AppManager.getInstance().currentActivity(), false);
             }else {
