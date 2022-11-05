@@ -148,7 +148,7 @@ public class LOG {
                 public void run() {
                     FileOutputStream os = null;
                     try {
-                        Log.e(TAG,"开始在线写入logcat");
+                        Log.e(TAG,"开始在线写入logcat, 目前有问题，记录不下来");
                         //新建一个路径信息
                         os = new FileOutputStream(logcatFile);
                         int len = 0;
