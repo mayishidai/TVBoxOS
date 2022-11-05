@@ -1,7 +1,10 @@
 package com.github.tvbox.osc.util;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
+import android.os.Handler.Callback;
+import android.os.Message;
 
 public class ToolUtils {
     /**
@@ -15,5 +18,15 @@ public class ToolUtils {
             return false;
         }
     }
-
+    /*
+    * 主线程运行方法
+    */
+    public static void runOnUiThread(Activity activity, Callback callback, Message message){
+        activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                callback.handleMessage(message);
+            }
+        });
+    }
 }

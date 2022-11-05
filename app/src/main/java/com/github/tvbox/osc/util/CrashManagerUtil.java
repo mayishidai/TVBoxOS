@@ -60,17 +60,17 @@ public class CrashManagerUtil {
         CrashReport.setAllThreadStackEnable(mContext, true, true); // 打开全部线程
 
         //crach 防护  开启后（优点）卡死不会闪退，界面还在（缺点）不会上报上面的自定义数据和日志
-        Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
-            @Override
-            public void uncaughtException(Thread t, Throwable e) {
-                LOG.e("crach 防护 uncaughtException-->" , e.toString());
-                CrashReport.postCatchedException(e, t);
-                handleFileException(e);
-                if (t == Looper.getMainLooper().getThread()) {
-                    handleMainThread(e);
-                }
-            }
-        });
+//        Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
+//            @Override
+//            public void uncaughtException(Thread t, Throwable e) {
+//                LOG.e("crach 防护 uncaughtException-->" , e.toString());
+//                CrashReport.postCatchedException(e, t);
+//                handleFileException(e);
+//                if (t == Looper.getMainLooper().getThread()) {
+//                    handleMainThread(e);
+//                }
+//            }
+//        });
     }
 
     //这里对异常信息作处理，可本地保存，可上传至第三方平台

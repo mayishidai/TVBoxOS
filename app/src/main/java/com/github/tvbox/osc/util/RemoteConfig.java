@@ -48,6 +48,10 @@ public class RemoteConfig {
                 isRemoteConfigOk = true;
                 InitRemoteConfig(response.body());
             }
+            @Override
+            public void onError(Response<String> response){
+                LOG.e(this.getClass().getName(), "初始化地址拉取失败：",remoteUrl, "错误详情：",  response.getException() != null ? response.getException().getMessage() : "");
+            }
         });
     }
     public static boolean IsOk(){
