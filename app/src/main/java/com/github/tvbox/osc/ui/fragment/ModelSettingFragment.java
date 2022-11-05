@@ -17,6 +17,8 @@ import com.github.tvbox.osc.base.BaseLazyFragment;
 import com.github.tvbox.osc.bean.IJKCode;
 import com.github.tvbox.osc.bean.SourceBean;
 import com.github.tvbox.osc.data.CustomData;
+import com.github.tvbox.osc.event.RefreshEvent;
+import com.github.tvbox.osc.player.thirdparty.RemoteTVBox;
 import com.github.tvbox.osc.ui.activity.HomeActivity;
 import com.github.tvbox.osc.ui.activity.SettingActivity;
 import com.github.tvbox.osc.ui.adapter.SelectDialogAdapter;
@@ -24,6 +26,7 @@ import com.github.tvbox.osc.ui.dialog.ApiDialog;
 import com.github.tvbox.osc.ui.dialog.BackupDialog;
 import com.github.tvbox.osc.ui.dialog.UpdateDialog;
 import com.github.tvbox.osc.ui.dialog.EpgDialog;
+import com.github.tvbox.osc.ui.dialog.SearchRemoteTvDialog;
 import com.github.tvbox.osc.ui.dialog.SelectDialog;
 import com.github.tvbox.osc.ui.dialog.XWalkInitDialog;
 import com.github.tvbox.osc.util.FastClickCheckUtil;
@@ -679,7 +682,68 @@ public class ModelSettingFragment extends BaseLazyFragment {
 //        TextToSpeechUtils.getInstance().speak("spek in english");
 //        TextToSpeechUtils.getInstance().close();
         LOG.e("语音有问题，无法播放，暂时关闭");
+        findViewById(R.id.llSearchTv).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                FastClickCheckUtil.check(view);
+                loadingSearchRemoteTvDialog = new SearchRemoteTvDialog(mActivity);
+                EventBus.getDefault().register(loadingSearchRemoteTvDialog);
+                loadingSearchRemoteTvDialog.setTip("搜索附近TVBox");
+                loadingSearchRemoteTvDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+                    @Override
+                    public void onDismiss(DialogInterface dialogInterface) {
+                        EventBus.getDefault().unregister(loadingSearchRemoteTvDialog);
+                    }
+                });
+                loadingSearchRemoteTvDialog.show();
+
+                RemoteTVBox tv = new RemoteTVBox();
+                remoteTvHostList = new ArrayList<>();
+                foundRemoteTv = false;
+                view.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+
+                        new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+                                RemoteTVBox.searchAvalible(tv.new Callback() {
+                                    @Override
+                                    public void found(String viewHost, boolean end) {
+                                        remoteTvHostList.add(viewHost);
+                                        if (end) {
+                                            foundRemoteTv = true;
+                                            EventBus.getDefault().post(new RefreshEvent(RefreshEvent.TYPE_SETTING_SEARCH_TV));
+                                        }
+                                    }
+
+                                    @Override
+                                    public void fail(boolean all, boolean end) {
+                                        if (end) {
+                                            if (all) {
+                                                foundRemoteTv = false;
+                                            } else {
+                                                foundRemoteTv = true;
+                                            }
+                                            EventBus.getDefault().post(new RefreshEvent(RefreshEvent.TYPE_SETTING_SEARCH_TV));
+                                        }
+                                    }
+                                });
+                            }
+                        }).start();
+
+                    }
+                }, 500);
+
+
+            }
+        });
     }
+
+
+    public static SearchRemoteTvDialog loadingSearchRemoteTvDialog;
+    public static List<String> remoteTvHostList;
+    public static boolean foundRemoteTv;
 
     @Override
     public void onDestroyView() {

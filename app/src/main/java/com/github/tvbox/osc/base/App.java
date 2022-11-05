@@ -1,5 +1,6 @@
 package com.github.tvbox.osc.base;
 
+import android.app.Activity;
 import androidx.multidex.MultiDexApplication;
 
 import com.github.tvbox.osc.bean.VodInfo;
@@ -9,6 +10,8 @@ import com.github.tvbox.osc.data.AppDataManager;
 import com.github.tvbox.osc.server.ControlManager;
 import com.github.tvbox.osc.util.CrashManagerUtil;
 import com.github.tvbox.osc.util.EpgNameFuzzyMatch;
+import com.github.tvbox.osc.util.AppManager;
+import com.github.tvbox.osc.util.EpgUtil;
 import com.github.tvbox.osc.util.HawkConfig;
 import com.github.tvbox.osc.util.LOG;
 import com.github.tvbox.osc.util.OkGoHelper;
@@ -18,7 +21,6 @@ import com.github.tvbox.osc.util.js.JSEngine;
 import com.kingja.loadsir.core.LoadSir;
 import com.orhanobut.hawk.Hawk;
 
-import me.jessyan.autosize.AutoSize;
 import me.jessyan.autosize.AutoSizeConfig;
 import me.jessyan.autosize.unit.Subunits;
 
@@ -41,8 +43,8 @@ public class App extends MultiDexApplication {
         // LOG.OpenSaveLog();
         initParams();
         // OKGo
-        OkGoHelper.init();
-        EpgNameFuzzyMatch.init();
+        OkGoHelper.init(); //台标获取
+        EpgUtil.init();
         // 初始化Web服务器
         ControlManager.init(this);
         //初始化数据库
@@ -85,5 +87,9 @@ public class App extends MultiDexApplication {
     }
     public VodInfo getVodInfo(){
         return this.vodInfo;
+    }
+
+    public Activity getCurrentActivity() {
+        return AppManager.getInstance().currentActivity();
     }
 }
