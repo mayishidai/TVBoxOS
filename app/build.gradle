@@ -102,7 +102,8 @@ dependencies {
     implementation 'commons-io:commons-io:2.11.0'
     implementation 'com.googlecode.juniversalchardet:juniversalchardet:1.0.3'
 
-    implementation 'com.tencent.bugly:crashreport:latest.release' //其中latest.release指代最新Bugly SDK版本号，也可以指定明确的版本号，例如4.0.3
+    implementation 'com.tencent.bugly:crashreport:latest.release' //最新Bugly SDK
+    //implementation 'com.qiniu:qiniu-android-sdk:latest.release' //最新七牛 SDK
 }
 
 
