@@ -90,6 +90,7 @@ import org.xwalk.core.XWalkWebResourceResponse;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -547,7 +548,6 @@ public class PlayFragment extends BaseLazyFragment {
                         }
                         mVideoView.start();
                         mController.resetSpeed();
-                        mController.initLandscapePortraitBtnInfo();
                     }
                 }
             }
@@ -1009,7 +1009,7 @@ public class PlayFragment extends BaseLazyFragment {
             } catch (Throwable e) {
                 e.printStackTrace();
             }
-            OkGo.<String>get(pb.getUrl() + webUrl)
+            OkGo.<String>get(pb.getUrl() + encodeUrl(webUrl))
                     .tag("json_jx")
                     .headers(reqHeaders)
                     .execute(new AbsCallback<String>() {
@@ -1178,6 +1178,14 @@ public class PlayFragment extends BaseLazyFragment {
         }
     }
 
+    private String encodeUrl(String url) {
+        try {
+            return URLEncoder.encode(url, "UTF-8");
+        } catch (Exception e) {
+            return url;
+        }
+    }
+
     // webview
     private XWalkView mXwalkWebView;
     private XWalkWebClient mX5WebClient;
@@ -1295,10 +1303,10 @@ public class PlayFragment extends BaseLazyFragment {
 
     boolean checkVideoFormat(String url) {
         try{
+            if (url.contains("url=http") || url.contains(".html")) {
+                return false;
+            }
             if (sourceBean.getType() == 3) {
-                if (url.contains("=http") || url.contains(".html")) {
-                    return false;
-                }
                 Spider sp = ApiConfig.get().getCSP(sourceBean);
                 if (sp != null && sp.manualVideoCheck()){
                     return sp.isVideoFormat(url);
@@ -1510,8 +1518,8 @@ public class PlayFragment extends BaseLazyFragment {
         @Nullable
         @Override
         public WebResourceResponse shouldInterceptRequest(WebView view, String url) {
-            WebResourceResponse response = checkIsVideo(url, new HashMap<>());
-            return response;
+//            WebResourceResponse response = checkIsVideo(url, new HashMap<>());
+            return null;
         }
 
         @Nullable
