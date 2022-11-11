@@ -1451,7 +1451,7 @@ public class PlayActivity extends BaseActivity {
 
             boolean isFilter = VideoParseRuler.isFilter(webUrl, url);
             if (isFilter) {
-                LOG.i( "shouldInterceptLoadRequest filter:" + url);
+                LOG.i( "PlayActivity", "当前装载的请求 filter:" + url);
                 return null;
             }
 
@@ -1467,7 +1467,7 @@ public class PlayActivity extends BaseActivity {
                 if (checkVideoFormat(url)) {
                     loadFoundVideoUrls.add(url);
                     loadFoundVideoUrlsHeader.put(url, headers);
-                    LOG.i("loadFoundVideoUrl:" + url );
+                    LOG.i("加载到视频Url:" + url );
                     if (loadFoundCount.incrementAndGet() == 1) {
                         url = loadFoundVideoUrls.poll();
                         mHandler.removeMessages(100);
@@ -1495,7 +1495,7 @@ public class PlayActivity extends BaseActivity {
         @TargetApi(Build.VERSION_CODES.LOLLIPOP)
         public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
             String url = request.getUrl().toString();
-            LOG.i("shouldInterceptRequest url:" + url);
+            LOG.i("PlayActivity", "当前装载的请求 url:" + url);
             HashMap<String, String> webHeaders = new HashMap<>();
             Map<String, String> hds = request.getRequestHeaders();
             if (hds != null && hds.keySet().size() > 0) {

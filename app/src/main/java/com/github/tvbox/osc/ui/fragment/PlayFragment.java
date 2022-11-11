@@ -475,6 +475,11 @@ public class PlayFragment extends BaseLazyFragment {
         requireActivity().runOnUiThread(new Runnable() { //影魔
             @Override
             public void run() {
+                if (err) {
+                    LOG.e("PlayFragment", "setTip", msg);
+                }else{
+                    LOG.i("PlayFragment", "setTip", msg);
+                }
                 mPlayLoadTip.setText(msg);
                 mPlayLoadTip.setVisibility(View.VISIBLE);
                 mPlayLoading.setVisibility(loading ? View.VISIBLE : View.GONE);
@@ -1469,7 +1474,7 @@ public class PlayFragment extends BaseLazyFragment {
 
             boolean isFilter = VideoParseRuler.isFilter(webUrl, url);
             if (isFilter) {
-                LOG.i( "shouldInterceptLoadRequest filter:" + url);
+                LOG.i( "PlayFragment", "当前装载的请求 filter:" + url);
                 return null;
             }
 
@@ -1485,7 +1490,7 @@ public class PlayFragment extends BaseLazyFragment {
                 if (checkVideoFormat(url)) {
                     loadFoundVideoUrls.add(url);
                     loadFoundVideoUrlsHeader.put(url, headers);
-                    LOG.i("loadFoundVideoUrl:" + url );
+                    LOG.i("加载到视频Url:" + url );
                     if (loadFoundCount.incrementAndGet() == 1) {
                         url = loadFoundVideoUrls.poll();
                         mHandler.removeMessages(100);
@@ -1514,7 +1519,7 @@ public class PlayFragment extends BaseLazyFragment {
         @TargetApi(Build.VERSION_CODES.LOLLIPOP)
         public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
             String url = request.getUrl().toString();
-            LOG.i("shouldInterceptRequest url:" + url);
+            LOG.i("PlayFragment", "当前装载的请求 url:" + url);
             HashMap<String, String> webHeaders = new HashMap<>();
             Map<String, String> hds = request.getRequestHeaders();
             if (hds != null && hds.keySet().size() > 0) {
