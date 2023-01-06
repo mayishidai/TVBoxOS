@@ -27,6 +27,7 @@ import com.github.tvbox.osc.util.LOG;
 import com.github.tvbox.osc.util.MD5;
 import com.github.tvbox.osc.util.RemoteConfig;
 import com.github.tvbox.osc.util.RemoteConfigName;
+import com.github.tvbox.osc.util.ToolUtils;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -200,7 +201,7 @@ public class UpdateDialog extends BaseDialog  {
             String target = String.format("%s/%s.apk", context.getExternalFilesDir("downloads").getAbsolutePath(), MD5.encode(NewVersion));
             File file = new File(target);
             if (file.exists()) {
-                InstallApk(file);
+                ToolUtils.installApk(context, file);
                 return;
             }
 
@@ -244,7 +245,7 @@ public class UpdateDialog extends BaseDialog  {
                     try {
                         FileUtils.copyFile(response.body().getAbsoluteFile(), file);
                         response.body().getAbsoluteFile().delete();
-                        InstallApk(file);
+                        ToolUtils.installApk(context, file);
                     }catch (Exception e){
                         LOG.e("UpdateDialog", "tapk 到 apk复制失败，导致安装失败");
                         e.printStackTrace();
@@ -261,26 +262,7 @@ public class UpdateDialog extends BaseDialog  {
             showToast("SD卡没有插好");
         }
     }
-    //下载成功后自动安装apk并打开
-    private void InstallApk(File file){
-        Intent intent = new Intent(Intent.ACTION_VIEW);
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.N){
-            intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-            LOG.e(context.getApplicationInfo().processName, file.getAbsolutePath());
-            Uri uri = FileProvider.getUriForFile(context, context.getApplicationInfo().processName+".fileprovider", file);
-            intent.setDataAndType(uri, "application/vnd.android.package-archive");
-        }else {
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            Uri uri = Uri.fromFile(file);
-            intent.setDataAndType(uri, "application/vnd.android.package-archive");
-        }
-        LOG.i("打开 下载文件", Uri.fromFile(file).getPath());
-        try {
-            context.startActivity(intent);
-        }catch (Exception e){
-            LOG.e("更新下载安装出现异常",e.toString());
-        }
-    }
+
     public void showToast(String msg){
         if (toast==null)
             toast = Toast.makeText(context, msg, Toast.LENGTH_LONG);
