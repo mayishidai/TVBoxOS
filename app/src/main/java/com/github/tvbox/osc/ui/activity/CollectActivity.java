@@ -65,6 +65,12 @@ public class CollectActivity extends BaseActivity {
                 toggleDelMode();
             }
         });
+        tvDel.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View view, boolean b) {
+                if (b) playTTS(tvDel);
+            }
+        });
         mGridView.setOnInBorderKeyEventListener(new TvRecyclerView.OnInBorderKeyEventListener() {
             @Override
             public boolean onInBorderKeyEvent(int direction, View focused) {
@@ -84,6 +90,7 @@ public class CollectActivity extends BaseActivity {
             @Override
             public void onItemSelected(TvRecyclerView parent, View itemView, int position) {
                 itemView.animate().scaleX(1.05f).scaleY(1.05f).setDuration(300).setInterpolator(new BounceInterpolator()).start();
+                playTTS(collectAdapter.getItem(position).name);
             }
 
             @Override

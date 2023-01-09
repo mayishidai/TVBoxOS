@@ -11,6 +11,7 @@ import android.widget.Toast;
 import com.github.tvbox.osc.data.CustomData;
 import com.orhanobut.hawk.Hawk;
 
+import java.io.File;
 import java.util.Locale;
 
 public class TTSService {
@@ -100,6 +101,9 @@ public class TTSService {
     }
 
     public boolean play(String text) {
+        if (!isOpenConfig()){
+            return false;
+        }
         boolean ret=false;
         if (!isCanUse()) {
             Toast.makeText(mContext, "TTS不支持", Toast.LENGTH_SHORT).show();
@@ -160,11 +164,23 @@ public class TTSService {
         if(packageInfo ==null){
             return false;
         }else{
+            uninit();
+            init(mContext);
             return true;
         }
     }
     public String downUrl(){
         return CustomData.getInstance().GetTTSDownloadUrl();
+    }
+    public boolean isDownloadExist(Context context) {
+        if (!new File(getDownloadPath()).exists())
+            return false;
+        return true;
+    }
+
+    public String getDownloadPath() {
+        String dir = mContext.getCacheDir().getAbsolutePath();
+        return dir + "/" + saveFile();
     }
     public String saveFile() {
         return String.format("tts.apk");

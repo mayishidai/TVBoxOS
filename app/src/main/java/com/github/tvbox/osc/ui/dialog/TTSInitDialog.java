@@ -43,9 +43,11 @@ public class TTSInitDialog extends BaseDialog {
 
         downTip.setText("下载TTSView运行组件");
 
-//        if (XWalkUtils.xWalkLibExist(context)) {
+        if (TTSService.getInstance().isDownloadExist(context)) {
+            downText.setText("重新安装");
+        }else{
             downText.setText("下载并安装");
-//        }
+        }
 
         downText.setOnClickListener(new View.OnClickListener() {
 
@@ -58,6 +60,11 @@ public class TTSInitDialog extends BaseDialog {
             public void onClick(View v) {
                 FastClickCheckUtil.check(v);
                 setTextEnable(false);
+                if (TTSService.getInstance().isDownloadExist(context)) {
+                    ToolUtils.installApk(context, new File(TTSService.getInstance().getDownloadPath()));
+                    dismiss();
+                    return;
+                }
                 OkGo.<File>get(TTSService.getInstance().downUrl()).tag("down_tts").execute(new FileCallback(context.getCacheDir().getAbsolutePath(), TTSService.getInstance().saveFile()) {
                     @Override
                     public void onSuccess(Response<File> response) {

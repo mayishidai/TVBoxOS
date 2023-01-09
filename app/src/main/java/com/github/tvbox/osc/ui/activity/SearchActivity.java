@@ -180,6 +180,20 @@ public class SearchActivity extends BaseActivity {
         mGridViewWord.setLayoutManager(new V7LinearLayoutManager(this.mContext, 1, false));
         wordAdapter = new PinyinAdapter();
         mGridViewWord.setAdapter(wordAdapter);
+        mGridViewWord.setOnItemListener(new TvRecyclerView.OnItemListener() {
+            @Override
+            public void onItemPreSelected(TvRecyclerView parent, View itemView, int position) {
+            }
+
+            @Override
+            public void onItemSelected(TvRecyclerView parent, View itemView, int position) {
+                playTTS(wordAdapter.getItem(position));
+            }
+
+            @Override
+            public void onItemClick(TvRecyclerView parent, View itemView, int position) {
+            }
+        });
         wordAdapter.setOnItemClickListener(new BaseQuickAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(BaseQuickAdapter adapter, View view, int position) {
@@ -195,6 +209,20 @@ public class SearchActivity extends BaseActivity {
             mGridView.setLayoutManager(new V7GridLayoutManager(this.mContext, 3));
         searchAdapter = new SearchAdapter();
         mGridView.setAdapter(searchAdapter);
+        mGridView.setOnItemListener(new TvRecyclerView.OnItemListener() {
+            @Override
+            public void onItemPreSelected(TvRecyclerView parent, View itemView, int position) {
+            }
+
+            @Override
+            public void onItemSelected(TvRecyclerView parent, View itemView, int position) {
+                playTTS(searchAdapter.getItem(position).name);
+            }
+
+            @Override
+            public void onItemClick(TvRecyclerView parent, View itemView, int position) {
+            }
+        });
         searchAdapter.setOnItemClickListener(new BaseQuickAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(BaseQuickAdapter adapter, View view, int position) {
@@ -232,11 +260,25 @@ public class SearchActivity extends BaseActivity {
                 }
             }
         });
+        tvSearch.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View view, boolean b) {
+                if (b)
+                    playTTS((TextView)view);
+            }
+        });
         tvClear.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 FastClickCheckUtil.check(v);
                 etSearch.setText("");
+            }
+        });
+        tvClear.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View view, boolean b) {
+                if (b)
+                    playTTS((TextView)view);
             }
         });
 //        etSearch.setOnClickListener(new View.OnClickListener() {
@@ -309,6 +351,13 @@ public class SearchActivity extends BaseActivity {
                     });
                 }
             }
+
+            @Override
+            public void OnFocusChange(View itemView, boolean hasFocus) {
+                //会变成英语字母~~
+                if (hasFocus)
+                    playTTS(itemView.findViewById(R.id.keyName));
+            }
         });
         setLoadSir(llLayout);
         tvSearchCheckboxBtn.setOnClickListener(new View.OnClickListener() {
@@ -331,6 +380,13 @@ public class SearchActivity extends BaseActivity {
                     }
                 });
                 mSearchCheckboxDialog.show();
+            }
+        });
+        tvSearchCheckboxBtn.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View view, boolean b) {
+                if (b)
+                    playTTS((TextView)view);
             }
         });
     }

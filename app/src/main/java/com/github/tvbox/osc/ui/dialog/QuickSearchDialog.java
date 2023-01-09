@@ -68,6 +68,18 @@ public class QuickSearchDialog extends BaseDialog {
         // with preview
         // mGridView.setLayoutManager(new V7GridLayoutManager(getContext(), 3));
         mGridView.setAdapter(searchAdapter);
+        mGridView.setOnItemListener(new TvRecyclerView.OnItemListener() {
+            @Override
+            public void onItemPreSelected(TvRecyclerView parent, View itemView, int position) {
+            }
+            @Override
+            public void onItemSelected(TvRecyclerView parent, View itemView, int position) {
+                playTTS(searchAdapter.getItem(position).name);
+            }
+            @Override
+            public void onItemClick(TvRecyclerView parent, View itemView, int position) {
+            }
+        });
         searchAdapter.setOnItemClickListener(new BaseQuickAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(BaseQuickAdapter adapter, View view, int position) {
@@ -80,6 +92,18 @@ public class QuickSearchDialog extends BaseDialog {
         searchWordAdapter = new SearchWordAdapter();
         mGridViewWord = findViewById(R.id.mGridViewWord);
         mGridViewWord.setAdapter(searchWordAdapter);
+        mGridViewWord.setOnItemListener(new TvRecyclerView.OnItemListener() {
+            @Override
+            public void onItemPreSelected(TvRecyclerView parent, View itemView, int position) {
+            }
+            @Override
+            public void onItemSelected(TvRecyclerView parent, View itemView, int position) {
+                playTTS(searchWordAdapter.getItem(position));
+            }
+            @Override
+            public void onItemClick(TvRecyclerView parent, View itemView, int position) {
+            }
+        });
         mGridViewWord.setLayoutManager(new V7LinearLayoutManager(context, 0, false));
         searchWordAdapter.setOnItemClickListener(new BaseQuickAdapter.OnItemClickListener() {
             @Override

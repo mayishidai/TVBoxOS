@@ -182,6 +182,7 @@ public class HomeActivity extends BaseActivity {
                     HomeActivity.this.sortFocused = position;
                     mHandler.removeCallbacks(mDataRunnable);
                     mHandler.postDelayed(mDataRunnable, 200);
+                    playTTS(textView);
                 }
             }
 
@@ -643,6 +644,18 @@ public class HomeActivity extends BaseActivity {
             spanCount = (int)Math.floor(sites.size()/60);
             spanCount = Math.min(spanCount, 2);
             tvRecyclerView.setLayoutManager(new V7GridLayoutManager(dialog.getContext(), spanCount+1));
+            tvRecyclerView.setOnItemListener(new TvRecyclerView.OnItemListener() {
+                @Override
+                public void onItemPreSelected(TvRecyclerView parent, View itemView, int position) {
+                }
+                @Override
+                public void onItemSelected(TvRecyclerView parent, View itemView, int position) {
+                    playTTS(sites.get(position).getName());
+                }
+                @Override
+                public void onItemClick(TvRecyclerView parent, View itemView, int position) {
+                }
+            });
             ConstraintLayout cl_root = dialog.findViewById(R.id.cl_root);
             ViewGroup.LayoutParams clp = cl_root.getLayoutParams();
             clp.width = AutoSizeUtils.mm2px(dialog.getContext(), 380+200*spanCount);

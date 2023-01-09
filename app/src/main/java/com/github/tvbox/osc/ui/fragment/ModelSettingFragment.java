@@ -723,6 +723,7 @@ public class ModelSettingFragment extends BaseLazyFragment {
                         Hawk.put(HawkConfig.TTS, true);
                         openTTSText.setText(Hawk.get(HawkConfig.TTS, false) ? "开启" : "关闭");
                     }else if(TTSService.getInstance().isInstalled()){ //已安装应该是没有开无障碍
+                        // 跳转无障碍语音
                         Intent intent = new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS);
                         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                         startActivity(intent);
