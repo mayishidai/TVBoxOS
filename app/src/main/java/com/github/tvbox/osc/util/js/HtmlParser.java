@@ -12,304 +12,258 @@ import org.jsoup.select.Elements;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class HtmlParser {
-    private static final String[] normalAttrs = {"href", "src", "class", "title", "alt"};
-    private static String baseUrl;
+    private static String pdfh_html = "";
+    private static String pdfa_html = "";
 
-    public static Element getTrueElement(String rule, Element element) {
-        if (rule.startsWith("Text") || rule.startsWith("Attr")) {
-            return element;
-        }
-        for (String normalAttr : normalAttrs) {
-            if (normalAttr.equals(rule)) {
-                return element;
-            }
-        }
-        //剔除元素
-        String[] rules = rule.split("--");
-        if (rules.length > 1) {
-            Element e = getTrueElement(rules[0], element);
-            String s = e.outerHtml();
-            for (int i = 1; i < rules.length; i++) {
-                String r = getTrueElement(rules[i], e).outerHtml();
-                s = s.replace(r, "");
-                e = Jsoup.parse(s);
-            }
-            return e;
-        }
-        //或规则
-        String[] ors = rule.split("\\|\\|");
-        if (ors.length > 1) {
-            for (String or : ors) {
-                Element e = null;
-                try {
-                    e = getTrueElement(or, element);
-                } catch (Exception e1) {
-                    e1.printStackTrace();
-                }
-                if (e != null) {
-                    return e;
-                }
-            }
-        }
-        String[] ss01 = rule.split(",");
-        if (ss01.length > 1) {
-            int index = Integer.parseInt(ss01[1]);
-            Elements elements = element.select(ss01[0]);
-            if (index < 0) {
-                return elements.get(elements.size() + index);
-            } else {
-                return element.select(ss01[0]).get(index);
-            }
-        } else return element.selectFirst(rule);
-    }
-
-    private static Elements selectElementsWithoutOr(Element element, String rule) {
-        String[] rules = rule.split(",");
-        if (rules.length > 1) {
-            String[] indexNumbs = rules[1].split(":", -1);
-            int startPos = 0;
-            int endPos = 0;
-            if (!TextUtils.isEmpty(indexNumbs[0])) {
-                try {
-                    startPos = Integer.parseInt(indexNumbs[0]);
-                } catch (NumberFormatException e) {
-                    e.printStackTrace();
-                }
-            }
-            if (!TextUtils.isEmpty(indexNumbs[1])) {
-                try {
-                    endPos = Integer.parseInt(indexNumbs[1]);
-                } catch (NumberFormatException e) {
-                    e.printStackTrace();
-                }
-            }
-            Elements elements = element.select(rules[0]);
-            if (endPos > elements.size()) {
-                endPos = elements.size();
-            }
-            if (endPos <= 0) {
-                endPos = elements.size() + endPos;
-            }
-            Elements res = new Elements();
-            for (int i = startPos; i < endPos; i++) {
-                res.add(elements.get(i));
-            }
-            return res;
-        } else {
-            return element.select(rule);
-        }
-    }
-
-    public static String getText(Element element, String lastRule) {
-        if ("*".equals(lastRule)) {
-            return "null";
-        }
-        String[] ors = lastRule.split("\\|\\|");
-        if (ors.length > 1) {
-            for (String or : ors) {
-                String e = null;
-                try {
-                    e = getTextWithoutOr(element, or);
-                } catch (Exception e1) {
-                    e1.printStackTrace();
-                }
-                if (!TextUtils.isEmpty(e)) {
-                    return e;
-                }
-            }
-        }
-        return getTextWithoutOr(element, lastRule);
-    }
-
-    private static String getTextWithoutOr(Element element, String lastRule) {
-        String js = "";
-        String[] ss = lastRule.split("\\.js:");
-        if (ss.length > 1) {
-            lastRule = ss[0];
-            js = JSUtils.arrayToString(ss, 1, ss.length, ".js:");
-        }
-        String[] rules = lastRule.split("!");
-        String text;
-        if (rules.length > 1) {
-            if ("Text".equals(rules[0])) {
-                text = element.text();
-            } else if ("Html".equals(rules[0])) {
-                text = element.html();
-            } else if (rules[0].contains("Attr")) {
-                text = element.attr(rules[0].replace("Attr", ""));
-            } else {
-                text = element.attr(rules[0]);
-            }
-            if (!"Html".equals(lastRule)) {
-                text = text.replaceAll("\n", " ");
-            }
-            for (int i = 1; i < rules.length; i++) {
-                text = text.replace(rules[i], "");
-            }
-        } else {
-            if ("Text".equals(lastRule)) {
-                text = element.text();
-            } else if ("Html".equals(lastRule)) {
-                text = element.html();
-            } else if (lastRule.contains("Attr")) {
-                text = element.attr(lastRule.replace("Attr", ""));
-            } else {
-                text = element.attr(lastRule);
-            }
-            if (!"Html".equals(lastRule)) {
-                text = text.replaceAll("\n", " ");
-            }
-        }
-
-        return text;
-    }
-
-    public static String getUrl(Element element3, String lastRule, String lastUrl) {
-        if ("*".equals(lastRule)) {
-            return "null";
-        }
-        String[] ors = lastRule.split("\\|\\|");
-        if (ors.length > 1) {
-            for (String or : ors) {
-                String e = null;
-                try {
-                    e = getUrlWithoutOr(element3, or, lastUrl);
-                } catch (Exception e1) {
-                    e1.printStackTrace();
-                }
-                if (!TextUtils.isEmpty(e)) {
-                    return e;
-                }
-            }
-        }
-        //        Log.d(TAG, "getUrl getUrlWithoutOr: " + url);
-        return getUrlWithoutOr(element3, lastRule, lastUrl);
-    }
-
-    private static String getUrlWithoutOr(Element element3, String lastRule, String lastUrl) {
-        String js = "";
-        String[] ss = lastRule.split("\\.js:");
-        if (ss.length > 1) {
-            lastRule = ss[0];
-            js = JSUtils.arrayToString(ss, 1, ss.length, ".js:");
-//            Log.d(TAG, "getUrlWithoutOr: " + js);
-        }
-        if(element3 == null){
-            return "";
-        }
-        String url;
-//        String[] rules = lastRule.split("@js:");
-        if (lastRule.startsWith("Text")) {
-            url = element3.text();
-        } else if ("Html".equals(lastRule)) {
-            url = element3.html();
-        } else if (lastRule.startsWith("AttrNo")) {
-            url = element3.attr(lastRule.replaceFirst("AttrNo", ""));
-            return baseUrl + url;
-        } else if (lastRule.startsWith("AttrYes")) {
-            url = element3.attr(lastRule.replaceFirst("AttrYes", ""));
-        } else if (lastRule.startsWith("Attr")) {
-            url = element3.attr(lastRule.replaceFirst("Attr", ""));
-        } else {
-            url = element3.attr(lastRule);
-//            url = element3.select(lastRule).first().toString();
-        }
-        if (TextUtils.isEmpty(js)) {
-            if (!"Html".equals(lastRule)) {
-                url = JSUtils.trimBlanks(url);
-            }
-        }
-        if (JSUtils.isEmpty(url)) {
-            return "";
-        }
-        if ("Html".equals(lastRule)) {
-            return url;
-        }
-        if (url.startsWith("http")) {
-            return url;
-        } else if (url.startsWith("//")) {
-            return "http:" + url;
-        } else if (url.startsWith("magnet") || url.startsWith("thunder") || url.startsWith("ftp") || url.startsWith("ed2k")) {
-            return url;
-        } else if (url.startsWith("/") || url.startsWith("./") || url.startsWith("../") || url.startsWith("?")) {
-            return joinUrl(lastUrl, url);
-        } else {
-            String[] urls = url.split("\\$");
-            if (urls.length > 1 && urls[1].startsWith("http")) {
-                return urls[1];
-            }
-            if (url.contains("url(")) {
-                String[] urls2 = url.split("url\\(");
-                if (urls2.length > 1 && urls2[1].startsWith("http")) {
-                    return urls2[1].split("\\)")[0];
-                }
-            }
-            return joinUrl(lastUrl, url);
-        }
-    }
+    private static Document pdfh_doc = null;
+    private static Document pdfa_doc = null;
 
     public static String joinUrl(String parent, String child) {
         if (JSUtils.isEmpty(parent)) {
             return child;
         }
-        URL url;
-        String q = parent;
         try {
-            url = new URL(new URL(parent), child);
-            q = url.toExternalForm();
+            return new URL(new URL(parent), child).toExternalForm();
         } catch (MalformedURLException e) {
             e.printStackTrace();
+            return parent;
         }
-//        if (q.contains("#")) {
-//            q = q.replaceAll("^(.+?)#.*?$", "$1");
-//        }
-        return q;
     }
 
-    public static String parseDomForUrl(String html, String rule, String movieUrl) {
-        Document doc = Jsoup.parse(html);
-        String[] ss4 = rule.split("&&");
-        Element element3;
-        if (ss4.length == 1) {
-            element3 = doc;
+    public static class Painfo {
+        public String nparse_rule;
+        public int nparse_index;
+        public List<String> excludes;
+    }
+
+    private static Painfo getParseInfo(String nparse) {
+        /*
+         根据传入的单规则获取 parse规则，索引位置,排除列表  -- 可以用于剔除元素,支持多个，按标签剔除，按id剔除等操作
+         :param nparse:
+         :return:*/
+        Painfo painfo = new Painfo();
+        //List<String> excludes = new ArrayList<>();  //定义排除列表默认值为空
+        //int nparse_index;  //定义位置索引默认值为0
+        painfo.nparse_rule = nparse; //定义规则默认值为本身
+        if (nparse.contains(":eq")) {
+            painfo.nparse_rule = nparse.split(":")[0];
+            String nparse_pos = nparse.split(":")[1];
+
+            if (painfo.nparse_rule.contains("--")) {
+                String[] rules = painfo.nparse_rule.split("--");
+                painfo.excludes = new ArrayList<>(Arrays.asList(rules));
+                painfo.excludes.remove(0);
+                painfo.nparse_rule = rules[0];
+            } else if (nparse_pos.contains("--")) {
+                String[] rules = nparse_pos.split("--");
+                painfo.excludes = new ArrayList<>(Arrays.asList(rules));
+                painfo.excludes.remove(0);
+                nparse_pos = rules[0];
+            }
+
+            try {
+                painfo.nparse_index = Integer.parseInt(nparse_pos.replace("eq(", "").replace(")", ""));
+            } catch (Exception e1) {
+                painfo.nparse_index = 0;
+            }
         } else {
-            element3 = getTrueElement(ss4[0], doc);
+            if (nparse.contains("--")) {
+                String[] rules = painfo.nparse_rule.split("--");
+                painfo.excludes = new ArrayList<>(Arrays.asList(rules));
+                painfo.excludes.remove(0);
+                painfo.nparse_rule = rules[0];
+            }
         }
-        for (int i = 1; i < ss4.length - 1; i++) {
-            element3 = getTrueElement(ss4[i], element3);
+        return painfo;
+    }
+
+    public static boolean isIndex(String str) {
+        if (JSUtils.isEmpty(str)) {
+            return false;
         }
-        baseUrl = JSUtils.getBaseUrl(movieUrl);
-        return getUrl(element3, ss4[ss4.length - 1], movieUrl);
+        for (String str2 : new String[]{":eq", ":lt", ":gt", ":first", ":last", "body", "#"}) {
+            if (str.contains(str2)) {
+                if (str2.equals("body") || str2.equals("#")) {
+                    return str.startsWith(str2);
+                }
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static boolean isUrl(String str) {
+        if (JSUtils.isEmpty(str)) {
+            return false;
+        }
+        for (String str2 : new String[]{"url", "src", "href", "-original", "-play"}) {
+            if (str.contains(str2)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static String parseHikerToJq(String parse, boolean first) {
+        /*
+         海阔解析表达式转原生表达式,自动补eq,如果传了first就最后一个也取eq(0)
+        :param parse:
+        :param first:
+        :return:
+        */
+        // 不自动加eq下标索引
+        if (parse.contains("&&")) {
+            String[] parses = parse.split("&&");  //带&&的重新拼接
+            List<String> new_parses = new ArrayList<>();  //构造新的解析表达式列表
+            for (int i = 0; i < parses.length; i++) {
+                String[] pss = parses[i].split(" ");
+                String ps = pss[pss.length - 1];  //如果分割&&后带空格就取最后一个元素
+                if (!isIndex(ps)) {
+                    if (!first && i >= parses.length - 1) {  //不传first且遇到最后一个,不用补eq(0)
+                        new_parses.add(parses[i]);
+                    } else {
+                        new_parses.add(parses[i] + ":eq(0)");
+                    }
+                } else {
+                    new_parses.add(parses[i]);
+                }
+            }
+            parse = TextUtils.join(" ", new_parses);
+        } else {
+            String[] pss = parse.split(" ");
+            String ps = pss[pss.length - 1];  //如果分割&&后带空格就取最后一个元素
+            if (!isIndex(ps) && first) {
+                parse = parse + ":eq(0)";
+            }
+        }
+        return parse;
+    }
+
+    public static String parseDomForUrl(String html, String rule, String add_url) {
+        if (!pdfh_html.equals(html)) {
+            pdfh_html = html;
+            pdfh_doc = Jsoup.parse(html);
+        }
+        Document doc = pdfh_doc;
+        if (rule.equals("body&&Text") || rule.equals("Text")) {
+            return doc.text();
+        } else if (rule.equals("body&&Html") || rule.equals("Html")) {
+            return doc.html();
+        }
+        String option = "";
+        if (rule.contains("&&")) {
+            String[] rs = rule.split("&&");
+            option = rs[rs.length - 1];
+            List<String> excludes = new ArrayList<>(Arrays.asList(rs));
+            excludes.remove(rs.length - 1);
+            rule = TextUtils.join("&&", excludes);
+        }
+        rule = parseHikerToJq(rule, true);
+        String[] parses = rule.split(" ");
+        Elements ret = new Elements();
+        for (String nparse : parses) {
+            ret = parseOneRule(doc, nparse, ret);
+            if (ret.isEmpty()) {
+                return "";
+            }
+        }
+        String result;
+        if (JSUtils.isNotEmpty(option)) {
+            if (option.equals("Text")) {
+                result = ret.text();
+            } else if (option.equals("Html")) {
+                result = ret.html();
+            } else {
+                result = ret.attr(option);
+                if (option.toLowerCase().contains("style") && result.contains("url(")) {
+                    Matcher m = Pattern.compile("url\\((.*?)\\)", Pattern.MULTILINE | Pattern.DOTALL).matcher(result);
+                    if (m.find()) {
+                        result = m.group(1);
+                    }
+                }
+                if (JSUtils.isNotEmpty(result) && JSUtils.isNotEmpty(add_url)) {
+                    // 需要自动urljoin的属性
+                    if (isUrl(option)) {
+                        if (result.contains("http")) {
+                            result = result.substring(result.indexOf("http"));
+                        } else {
+                            result = joinUrl(add_url, result);
+                        }
+                    }
+                }
+            }
+        } else {
+            result = ret.outerHtml();
+        }
+        return result;
+
     }
 
     public static List<String> parseDomForList(String html, String rule) {
-        Document doc = Jsoup.parse(html);
-        String[] ss2 = rule.split("&&");
-        //循环获取
-        Elements elements = new Elements();
-        Element element;
-        element = getTrueElement(ss2[0], doc);
-        for (int i = 1; i < ss2.length - 1; i++) {
-            element = getTrueElement(ss2[i], element);
+        if (!pdfa_html.equals(html)) {
+            pdfa_html = html;
+            pdfa_doc = Jsoup.parse(html);
         }
-       rule = ss2[ss2.length - 1];
-        String[] ors = rule.split("\\|\\|");
-        Elements res = new Elements();
-        for (String or : ors) {
-            try {
-                res.addAll(selectElementsWithoutOr(element, or));
-            } catch (Exception e1) {
-                e1.printStackTrace();
+        Document doc = pdfa_doc;
+        rule = parseHikerToJq(rule, false);
+        String[] parses = rule.split(" ");
+        Elements ret = new Elements();
+        for (String nparse : parses) {
+            ret = parseOneRule(doc, nparse, ret);
+            if (ret.isEmpty()) {
+                return new ArrayList<>();
             }
         }
-        elements.addAll(res);
+
         List<String> eleHtml = new ArrayList<>();
-        for (Element element1 : elements) {
+        for (Element element1 : ret) {
             eleHtml.add(element1.outerHtml());
         }
         return eleHtml;
+    }
+
+    private static Elements parseOneRule(Document doc, String nparse, Elements ret) {
+        Painfo painfo = getParseInfo(nparse);
+        if (nparse.contains(":eq")) {
+            if (ret.isEmpty()) {
+                if(painfo.nparse_index < 0){
+                    Elements r = doc.select(painfo.nparse_rule);
+                    ret = r.eq(r.size() + painfo.nparse_index);
+                } else {
+                    ret = doc.select(painfo.nparse_rule).eq(painfo.nparse_index);
+                }
+            } else {
+                if(painfo.nparse_index < 0){
+                    Elements r = ret.select(painfo.nparse_rule);
+                    ret = r.eq(r.size() + painfo.nparse_index);
+                } else {
+                    ret = ret.select(painfo.nparse_rule).eq(painfo.nparse_index);
+                }
+            }
+        } else {
+            if (ret.isEmpty()) {
+                ret = doc.select(nparse);
+            } else {
+                ret = ret.select(nparse);
+            }
+        }
+        if (painfo.excludes != null && !ret.isEmpty()) {
+            ret = ret.clone(); //克隆一个, 免得直接remove会影响doc的缓存
+            for (String exclude : painfo.excludes) {
+                ret.select(exclude).remove();
+                //ret = ret.not(exclude).remove();
+                //Elements selector = ret.select(exclude);
+                //for (Element element : selector) {
+                //    element.remove();
+                //}
+            }
+        }
+        return ret;
     }
 }

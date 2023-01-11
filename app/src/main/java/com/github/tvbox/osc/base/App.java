@@ -12,6 +12,7 @@ import com.github.tvbox.osc.util.CrashManagerUtil;
 import com.github.tvbox.osc.util.EpgNameFuzzyMatch;
 import com.github.tvbox.osc.util.AppManager;
 import com.github.tvbox.osc.util.EpgUtil;
+import com.github.tvbox.osc.util.FileUtils;
 import com.github.tvbox.osc.util.HawkConfig;
 import com.github.tvbox.osc.util.LOG;
 import com.github.tvbox.osc.util.OkGoHelper;
@@ -59,6 +60,7 @@ public class App extends MultiDexApplication {
                 .setSupportSubunits(Subunits.MM);
         PlayerHelper.init();
         JSEngine.getInstance().create();
+        FileUtils.cleanPlayerCache();
     }
 
     private void initParams() {

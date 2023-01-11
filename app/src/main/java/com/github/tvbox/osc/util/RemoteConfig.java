@@ -30,7 +30,8 @@ public class RemoteConfig {
     public static void Init(Context mContext){
         RemoteConfig.mContext = mContext;
         if (ToolUtils.isApkInDebug(mContext)){
-            remoteUrl = "http://a.mayishidai.cn:7080/tv/apk/remote_debug.ini";
+//            remoteUrl = "http://a.mayishidai.cn:7080/tv/apk/remote_debug.ini";
+            remoteUrl = "https://76.mayishidai.cn/tv/apk/remote.ini";
         }else{
             remoteUrl = "https://76.mayishidai.cn/tv/apk/remote.ini";
         }
@@ -120,8 +121,9 @@ public class RemoteConfig {
         // endregion 默认API地址
         // region 默认首页数据源
         if (!GetAppModelValue(RemoteConfigName.HomeID).isJsonNull()) {
+            boolean forceChangeHomeID = !GetAppModelValue(RemoteConfigName.ForceChangeHomeID).isJsonNull() && GetAppModelValue(RemoteConfigName.ForceChangeHomeID).getAsBoolean();
             String remoteValue = GetAppModelValue(RemoteConfigName.HomeID).getAsString();
-            SetRemoteHawkConfig(HawkConfig.HOME_API, remoteValue,"默认首页数据源", false);
+            SetRemoteHawkConfig(HawkConfig.HOME_API, remoteValue, "默认首页数据源", forceChangeHomeID);
         }
         // endregion 默认首页数据源
         // region 默认首页推荐

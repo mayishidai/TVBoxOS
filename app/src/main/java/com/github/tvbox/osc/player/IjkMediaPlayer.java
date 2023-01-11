@@ -5,7 +5,12 @@ import android.text.TextUtils;
 
 import com.github.tvbox.osc.api.ApiConfig;
 import com.github.tvbox.osc.bean.IJKCode;
+import com.github.tvbox.osc.util.FileUtils;
+import com.github.tvbox.osc.util.HawkConfig;
+import com.github.tvbox.osc.util.MD5;
+import com.orhanobut.hawk.Hawk;
 
+import java.io.File;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -56,11 +61,54 @@ public class IjkMediaPlayer extends IjkPlayer {
                 mMediaPlayer.setOption(1, "infbuf", 1);
                 mMediaPlayer.setOption(1, "rtsp_transport", "tcp");
                 mMediaPlayer.setOption(1, "rtsp_flags", "prefer_tcp");
+            } else if (!TextUtils.isEmpty(path)
+                    && !path.contains(".m3u8")
+                    && (path.contains(".mp4") || path.contains(".mkv") || path.contains(".avi"))) {
+                if (Hawk.get(HawkConfig.IJK_CACHE_PLAY, false)) {
+                    String cachePath = FileUtils.getCachePath() + "/ijkcaches/";
+                    String cacheMapPath = cachePath;
+                    File cacheFile = new File(cachePath);
+                    if (!cacheFile.exists()) cacheFile.mkdirs();
+                    String tmpMd5 = MD5.string2MD5(path);
+                    cachePath += tmpMd5 + ".file";
+                    cacheMapPath += tmpMd5 + ".map";
+                    mMediaPlayer.setOption(tv.danmaku.ijk.media.player.IjkMediaPlayer.OPT_CATEGORY_FORMAT, "cache_file_path", cachePath);
+                    mMediaPlayer.setOption(tv.danmaku.ijk.media.player.IjkMediaPlayer.OPT_CATEGORY_FORMAT, "cache_map_path", cacheMapPath);
+                    mMediaPlayer.setOption(tv.danmaku.ijk.media.player.IjkMediaPlayer.OPT_CATEGORY_FORMAT, "parse_cache_map", 1);
+                    mMediaPlayer.setOption(tv.danmaku.ijk.media.player.IjkMediaPlayer.OPT_CATEGORY_FORMAT, "auto_save_map", 1);
+                    mMediaPlayer.setOption(tv.danmaku.ijk.media.player.IjkMediaPlayer.OPT_CATEGORY_FORMAT, "cache_max_capacity", 60 * 1024 * 1024);
+                    path = "ijkio:cache:ffio:" + path;
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
-        super.setDataSource(path, headers);
+        setDataSourceHeader(headers);
+        mMediaPlayer.setOption(tv.danmaku.ijk.media.player.IjkMediaPlayer.OPT_CATEGORY_FORMAT, "protocol_whitelist", "ijkio,ffio,async,cache,crypto,file,http,https,ijkhttphook,ijkinject,ijklivehook,ijklongurl,ijksegment,ijktcphook,pipe,rtp,tcp,tls,udp,ijkurlhook,data");
+        super.setDataSource(path, null);
+    }
+
+    private void setDataSourceHeader(Map<String, String> headers) {
+        if (headers != null && !headers.isEmpty()) {
+            String userAgent = headers.get("User-Agent");
+            if (!TextUtils.isEmpty(userAgent)) {
+                mMediaPlayer.setOption(tv.danmaku.ijk.media.player.IjkMediaPlayer.OPT_CATEGORY_FORMAT, "user_agent", userAgent);
+                // 移除header中的User-Agent，防止重复
+                headers.remove("User-Agent");
+            }
+            if (headers.size() > 0) {
+                StringBuilder sb = new StringBuilder();
+                for (Map.Entry<String, String> entry : headers.entrySet()) {
+                    sb.append(entry.getKey());
+                    sb.append(":");
+                    String value = entry.getValue();
+                    if (!TextUtils.isEmpty(value))
+                        sb.append(entry.getValue());
+                    sb.append("\r\n");
+                    mMediaPlayer.setOption(tv.danmaku.ijk.media.player.IjkMediaPlayer.OPT_CATEGORY_FORMAT, "headers", sb.toString());
+                }
+            }
+        }
     }
 
     public TrackInfo getTrackInfo() {

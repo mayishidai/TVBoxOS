@@ -39,6 +39,7 @@ public class RemoteConfigName extends HawkConfig {
     // region 默认配置相关
     public static final String ForceChangeAPIUrl="ForceChangeAPIUrl"; //强制替换首页默认API地址，防止API失效不更新包的手段
     public static final String APIUrl="APIUrl"; // 默认首页API地址
+    public static final String ForceChangeHomeID="ForceChangeHomeID"; //强制替换首页ID
     public static final String HomeID="HomeID"; //默认首页数据源
     public static final String HomeShowType="HomeShowType"; //默认首页推荐
     public static final String HomeSearchType="HomeSearchType"; //默认搜索展示

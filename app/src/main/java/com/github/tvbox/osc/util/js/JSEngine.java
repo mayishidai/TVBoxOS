@@ -18,20 +18,17 @@ import com.google.gson.Gson;
 import com.lzy.okgo.OkGo;
 
 import org.json.JSONObject;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 
 import java.io.InputStream;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 
 import okhttp3.Headers;
 import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
@@ -216,10 +213,10 @@ public class JSEngine {
                             }
                         }
                         Headers headers = headerBuilder.build();
-                        String method = opt.optString("method").toLowerCase();
+                        String method = opt.optString("method", "get");
                         Request.Builder requestBuilder = new Request.Builder().url(url).headers(headers).tag("js_okhttp_tag");
                         Request request = null;
-                        if (method.equals("post")) {
+                        if (method.equalsIgnoreCase("post")) {
                             RequestBody body = null;
                             String data = opt.optString("data", "").trim();
                             if (!data.isEmpty()) {
@@ -235,12 +232,28 @@ public class JSEngine {
                                 body = RequestBody.create(null, "");
                             }
                             request = requestBuilder.post(body).build();
-                        } else if (method.equals("header")) {
+                        } else if (method.equalsIgnoreCase("header")) {
                             request = requestBuilder.head().build();
                         } else {
                             request = requestBuilder.get().build();
                         }
-                        Response response = opt.optInt("redirect", 1) == 1 ? OkGoHelper.getDefaultClient().newCall(request).execute() : OkGoHelper.getNoRedirectClient().newCall(request).execute();
+                        int redirect = opt.optInt("redirect", 1);
+                        OkHttpClient client = null;
+                        if (redirect == 1) {
+                            client  = OkGoHelper.getDefaultClient();
+                        } else {
+                            client  = OkGoHelper.getNoRedirectClient();
+                        }
+                        OkHttpClient.Builder clientBuilder = client.newBuilder();
+                        int timeout = 10000;
+                        if (opt.has("timeout")) {
+                            timeout = opt.optInt("timeout");
+                        }
+                        clientBuilder.readTimeout(timeout, TimeUnit.MILLISECONDS);
+                        clientBuilder.writeTimeout(timeout, TimeUnit.MILLISECONDS);
+                        clientBuilder.connectTimeout(timeout, TimeUnit.MILLISECONDS);
+                        Response response = clientBuilder.build().newCall(request).execute();
+
                         JSObject jsObject = jsContext.createNewJSObject();
                         Set<String> resHeaders = response.headers().names();
                         JSObject resHeader = jsContext.createNewJSObject();
@@ -272,7 +285,11 @@ public class JSEngine {
                     } catch (Throwable throwable) {
                         throwable.printStackTrace();
                     }
-                    return "";
+                    JSObject jsObject = jsContext.createNewJSObject();
+                    JSObject resHeader = jsContext.createNewJSObject();
+                    jsObject.setProperty("headers", resHeader);
+                    jsObject.setProperty("content", "");
+                    return jsObject;
                 }
             });
             jsContext.getGlobalObject().setProperty("joinUrl", new JSCallFunction() {

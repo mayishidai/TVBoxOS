@@ -1,5 +1,9 @@
 package com.github.tvbox.osc.util;
 
+import android.os.Environment;
+
+import com.github.tvbox.osc.base.App;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.BufferedWriter;
@@ -111,5 +115,101 @@ public class FileUtils {
         }
         // 返回拼接好的JSON String
         return jsonString;
+    }
+
+    public static String getAssetFile(String assetName) throws IOException {
+        InputStream is = App.getInstance().getAssets().open(assetName);
+        byte[] data = new byte[is.available()];
+        is.read(data);
+        return new String(data, "UTF-8");
+    }
+
+    public static boolean isAssetFile(String name, String path) {
+        try {
+            for(String one : App.getInstance().getAssets().list(path)) {
+                if (one.equals(name)) return true;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public static String getRootPath() {
+        return Environment.getExternalStorageDirectory().getAbsolutePath();
+    }
+
+    public static File getLocal(String path) {
+        return new File(path.replace("file:/", getRootPath()));
+    }
+
+    public static File getCacheDir() {
+        return App.getInstance().getCacheDir();
+    }
+
+    public static String getCachePath() {
+        return getCacheDir().getAbsolutePath();
+    }
+
+    public static void cleanDirectory(File dir) {
+        if (!dir.exists()) return;
+        File[] files = dir.listFiles();
+        if (files == null || files.length == 0) return;
+        for(File one : files) {
+            try {
+                deleteFile(one);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public static void deleteFile(File file) {
+        if (!file.exists()) return;
+        if (file.isFile()) {
+            if (file.canWrite()) file.delete();
+            return;
+        }
+        if (file.isDirectory()) {
+            File[] files = file.listFiles();
+            if (files == null || files.length == 0) {
+                if (file.canWrite()) file.delete();
+                return;
+            }
+            for(File one : files) {
+                deleteFile(one);
+            }
+        }
+        return;
+    }
+
+    public static void cleanPlayerCache() {
+        String ijkCachePath = getCachePath() + "/ijkcaches/";
+        String thunderCachePath = getCachePath() + "/thunder/";
+        File ijkCacheDir = new File(ijkCachePath);
+        File thunderCacheDir = new File(thunderCachePath);
+        try {
+            if (ijkCacheDir.exists()) cleanDirectory(ijkCacheDir);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        try {
+            if (thunderCacheDir.exists()) cleanDirectory(thunderCacheDir);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static String read(String path) {
+        try {
+            BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(getLocal(path))));
+            StringBuilder sb = new StringBuilder();
+            String text;
+            while ((text = br.readLine()) != null) sb.append(text).append("\n");
+            br.close();
+            return sb.toString();
+        } catch (Exception e) {
+            return "";
+        }
     }
 }

@@ -2,6 +2,7 @@ package com.github.tvbox.osc.ui.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -194,8 +195,8 @@ public class FastSearchActivity extends BaseActivity {
                     try {
                         if (searchExecutorService != null) {
                             pauseRunnable = searchExecutorService.shutdownNow();
-                            JSEngine.getInstance().stopAll();
                             searchExecutorService = null;
+                            JSEngine.getInstance().stopAll();
                         }
                     } catch (Throwable th) {
                         th.printStackTrace();
@@ -221,8 +222,8 @@ public class FastSearchActivity extends BaseActivity {
                     try {
                         if (searchExecutorService != null) {
                             pauseRunnable = searchExecutorService.shutdownNow();
-                            JSEngine.getInstance().stopAll();
                             searchExecutorService = null;
+                            JSEngine.getInstance().stopAll();
                         }
                     } catch (Throwable th) {
                         th.printStackTrace();
@@ -380,8 +381,8 @@ public class FastSearchActivity extends BaseActivity {
         try {
             if (searchExecutorService != null) {
                 searchExecutorService.shutdownNow();
-                JSEngine.getInstance().stopAll();
                 searchExecutorService = null;
+                JSEngine.getInstance().stopAll();
             }
         } catch (Throwable th) {
             th.printStackTrace();
@@ -454,21 +455,31 @@ public class FastSearchActivity extends BaseActivity {
         }
     }
 
+    private boolean matchSearchResult(String name, String searchTitle) {
+        if (TextUtils.isEmpty(name) || TextUtils.isEmpty(searchTitle)) return false;
+        searchTitle = searchTitle.trim();
+        String[] arr = searchTitle.split("\\s+");
+        int matchNum = 0;
+        for(String one : arr) {
+            if (name.contains(one)) matchNum++;
+        }
+        return matchNum == arr.length ? true : false;
+    }
+
     private void searchData(AbsXml absXml) {
         String lastSourceKey = "";
 
         if (absXml != null && absXml.movie != null && absXml.movie.videoList != null && absXml.movie.videoList.size() > 0) {
             List<Movie.Video> data = new ArrayList<>();
             for (Movie.Video video : absXml.movie.videoList) {
-                if (video.name.contains(searchTitle)) {
-                    data.add(video);
-                    if (!resultVods.containsKey(video.sourceKey)) {
-                        resultVods.put(video.sourceKey, new ArrayList<Movie.Video>());
-                    }
-                    resultVods.get(video.sourceKey).add(video);
-                    if (video.sourceKey != lastSourceKey) {
-                        lastSourceKey = this.addWordAdapterIfNeed(video.sourceKey);
-                    }
+                if (!matchSearchResult(video.name, searchTitle)) continue;
+                data.add(video);
+                if (!resultVods.containsKey(video.sourceKey)) {
+                    resultVods.put(video.sourceKey, new ArrayList<Movie.Video>());
+                }
+                resultVods.get(video.sourceKey).add(video);
+                if (video.sourceKey != lastSourceKey) {
+                    lastSourceKey = this.addWordAdapterIfNeed(video.sourceKey);
                 }
             }
 
@@ -502,8 +513,8 @@ public class FastSearchActivity extends BaseActivity {
         try {
             if (searchExecutorService != null) {
                 searchExecutorService.shutdownNow();
-                JSEngine.getInstance().stopAll();
                 searchExecutorService = null;
+                JSEngine.getInstance().stopAll();
             }
         } catch (Throwable th) {
             th.printStackTrace();

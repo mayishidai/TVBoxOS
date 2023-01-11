@@ -527,6 +527,7 @@ public class PlayFragment extends BaseLazyFragment {
             url="http://home.jundie.top:666/unBom.php?m3u8="+url;
         }
         String finalUrl = url;
+        if (mActivity == null) return;
         requireActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -1171,6 +1172,9 @@ public class PlayFragment extends BaseLazyFragment {
                                     Iterator<String> keys = hds.keys();
                                     while (keys.hasNext()) {
                                         String key = keys.next();
+                                        if (headers == null) {
+                                            headers = new HashMap<>();
+                                        }
                                         headers.put(key, hds.getString(key));
                                     }
                                 } catch (Throwable th) {
@@ -1288,6 +1292,7 @@ public class PlayFragment extends BaseLazyFragment {
     }
 
     void stopLoadWebView(boolean destroy) {
+        if (mActivity == null) return;
         requireActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
