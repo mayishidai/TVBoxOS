@@ -11,6 +11,8 @@ import android.os.Bundle;
 import android.os.Looper;
 import android.util.DisplayMetrics;
 import android.view.View;
+import android.view.animation.BounceInterpolator;
+import android.widget.TextView;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -20,6 +22,7 @@ import com.github.tvbox.osc.R;
 import com.github.tvbox.osc.callback.EmptyCallback;
 import com.github.tvbox.osc.callback.LoadingCallback;
 import com.github.tvbox.osc.util.AppManager;
+import com.github.tvbox.osc.util.TTSService;
 import com.kingja.loadsir.callback.Callback;
 import com.kingja.loadsir.core.LoadService;
 import com.kingja.loadsir.core.LoadSir;
@@ -218,5 +221,15 @@ public abstract class BaseActivity extends AppCompatActivity implements CustomAd
             getWindow().setBackgroundDrawable(globalWp);
         else
             getWindow().setBackgroundDrawableResource(R.drawable.app_bg);
+    }
+
+    //播放文字转语音
+    public void playTTS(String text){
+        if (!text.isEmpty())
+            TTSService.getInstance().play(text);
+    }
+    public void playTTS(android.widget.TextView text){
+        if (text!=null)
+            TTSService.getInstance().play(text.getText().toString());
     }
 }

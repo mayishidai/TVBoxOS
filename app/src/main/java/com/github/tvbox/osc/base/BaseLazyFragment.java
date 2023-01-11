@@ -16,6 +16,7 @@ import androidx.fragment.app.FragmentManager;
 
 import com.github.tvbox.osc.callback.EmptyCallback;
 import com.github.tvbox.osc.callback.LoadingCallback;
+import com.github.tvbox.osc.util.TTSService;
 import com.kingja.loadsir.callback.Callback;
 import com.kingja.loadsir.core.LoadService;
 import com.kingja.loadsir.core.LoadSir;
@@ -307,4 +308,13 @@ public abstract class BaseLazyFragment extends Fragment implements CustomAdapt {
     }
 
 
+    //播放文字转语音
+    public void playTTS(String text){
+        if (!text.isEmpty())
+            TTSService.getInstance().play(text);
+    }
+    public void playTTS(android.widget.TextView text){
+        if (text!=null)
+            TTSService.getInstance().play(text.getText().toString());
+    }
 }

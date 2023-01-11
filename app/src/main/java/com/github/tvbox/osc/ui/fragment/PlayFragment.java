@@ -515,6 +515,7 @@ public class PlayFragment extends BaseLazyFragment {
                     } else {
                         setTip(err, false, true);
                     }
+                    playTTS(err);
                 }
             });
         }

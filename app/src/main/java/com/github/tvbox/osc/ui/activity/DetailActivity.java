@@ -139,6 +139,14 @@ public class DetailActivity extends BaseActivity {
     private final ArrayList<String> seriesGroupOptions = new ArrayList<>();
     private View currentSeriesGroupView;
     private int GroupCount;
+    private View.OnFocusChangeListener ttsTextViewFocusChangeListener = new View.OnFocusChangeListener() {
+        @Override
+        public void onFocusChange(View v, boolean hasFocus) {
+            if (hasFocus) {
+                playTTS((TextView) v);
+            }
+        }
+    };
 
     @Override
     protected int getLayoutResID() {
@@ -250,7 +258,6 @@ public class DetailActivity extends BaseActivity {
         tvPlayUrl.setFocusable(false);
 
         llPlayerFragmentContainerBlock.setOnClickListener((view -> toggleFullPreview()));
-
         tvSort.setOnClickListener(new View.OnClickListener() {
             @SuppressLint("NotifyDataSetChanged")
             @Override
@@ -282,7 +289,6 @@ public class DetailActivity extends BaseActivity {
                 }
             }
         });
-
         tvQuickSearch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -339,6 +345,12 @@ public class DetailActivity extends BaseActivity {
                 Toast.makeText(DetailActivity.this, "已复制", Toast.LENGTH_SHORT).show();
             }
         });
+
+        tvSort.setOnFocusChangeListener(ttsTextViewFocusChangeListener);
+        tvPlay.setOnFocusChangeListener(ttsTextViewFocusChangeListener);
+        tvQuickSearch.setOnFocusChangeListener(ttsTextViewFocusChangeListener);
+        tvCollect.setOnFocusChangeListener(ttsTextViewFocusChangeListener);
+        tvPlayUrl.setOnFocusChangeListener(ttsTextViewFocusChangeListener);
         mGridView.setOnItemListener(new TvRecyclerView.OnItemListener() {
             @Override
             public void onItemPreSelected(TvRecyclerView parent, View itemView, int position) {
@@ -348,6 +360,7 @@ public class DetailActivity extends BaseActivity {
             @Override
             public void onItemSelected(TvRecyclerView parent, View itemView, int position) {
                 seriesSelect = true;
+                playTTS(seriesAdapter.getItem(position).name);
             }
 
             @Override
@@ -388,6 +401,7 @@ public class DetailActivity extends BaseActivity {
             public void onItemSelected(TvRecyclerView parent, View itemView, int position) {
                 refresh(itemView, position);
 //                if(isReverse)vodInfo.reverse();
+                playTTS(seriesFlagAdapter.getItem(position).name);
             }
 
             @Override
@@ -449,6 +463,7 @@ public class DetailActivity extends BaseActivity {
                 }
                 currentSeriesGroupView = itemView;
                 currentSeriesGroupView.isSelected();
+                playTTS(seriesGroupAdapter.getItem(position).replace("-", "到")+"集");
             }
 
             @Override

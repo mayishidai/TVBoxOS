@@ -59,6 +59,18 @@ public class GridFilterDialog extends BaseDialog {
             gridView.setLayoutManager(new V7LinearLayoutManager(getContext(), 0, false));
             GridFilterKVAdapter filterKVAdapter = new GridFilterKVAdapter();
             gridView.setAdapter(filterKVAdapter);
+            gridView.setOnItemListener(new TvRecyclerView.OnItemListener() {
+                @Override
+                public void onItemPreSelected(TvRecyclerView parent, View itemView, int position) {
+                }
+                @Override
+                public void onItemSelected(TvRecyclerView parent, View itemView, int position) {
+                    playTTS(filterKVAdapter.getItem(position));
+                }
+                @Override
+                public void onItemClick(TvRecyclerView parent, View itemView, int position) {
+                }
+            });
             String key = filter.key;
             ArrayList<String> values = new ArrayList<>(filter.values.keySet());
             ArrayList<String> keys = new ArrayList<>(filter.values.values());

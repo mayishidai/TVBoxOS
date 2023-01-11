@@ -1,6 +1,7 @@
 package com.github.tvbox.osc.data;
 
 import android.os.Bundle;
+import android.util.Log;
 
 import com.github.tvbox.osc.base.BaseActivity;
 import com.github.tvbox.osc.ui.activity.HomeActivity;
@@ -70,6 +71,14 @@ public class CustomData {
                 RemoteConfigName.APPModel_HomeButtons,
                 buttonName);
         return element.isJsonNull()||element.getAsBoolean();
+    }
+    // endregion
+
+    // region TTs
+    public String GetTTSDownloadUrl(){
+        JsonElement element = RemoteConfig.GetValue(RemoteConfigName.TTSDownLoad);
+        Log.e(this.getClass().getName(), "GetTTSDownloadUrl: "+element);
+        return (element==null || element.isJsonNull()) ?  "http://76.mayishidai.cn/tv/api/tts/%E7%A7%91%E5%A4%A7%E8%AE%AF%E9%A3%9E%E8%AF%AD%E9%9F%B3%E5%BC%95%E6%93%8E3.0.apk" : element.getAsString();
     }
     // endregion
 }

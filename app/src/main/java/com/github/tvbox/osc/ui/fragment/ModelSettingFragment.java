@@ -3,6 +3,9 @@ package com.github.tvbox.osc.ui.fragment;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.provider.Settings;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -24,6 +27,7 @@ import com.github.tvbox.osc.ui.activity.SettingActivity;
 import com.github.tvbox.osc.ui.adapter.SelectDialogAdapter;
 import com.github.tvbox.osc.ui.dialog.ApiDialog;
 import com.github.tvbox.osc.ui.dialog.BackupDialog;
+import com.github.tvbox.osc.ui.dialog.TTSInitDialog;
 import com.github.tvbox.osc.ui.dialog.UpdateDialog;
 //import com.github.tvbox.osc.ui.dialog.EpgDialog;
 import com.github.tvbox.osc.ui.dialog.SearchRemoteTvDialog;
@@ -36,17 +40,21 @@ import com.github.tvbox.osc.util.HistoryHelper;
 import com.github.tvbox.osc.util.LOG;
 import com.github.tvbox.osc.util.OkGoHelper;
 import com.github.tvbox.osc.util.PlayerHelper;
+import com.github.tvbox.osc.util.TTSService;
+import com.github.tvbox.osc.util.ToolUtils;
 import com.lzy.okgo.OkGo;
 import com.lzy.okgo.callback.FileCallback;
 import com.lzy.okgo.model.Progress;
 import com.lzy.okgo.model.Response;
 import com.orhanobut.hawk.Hawk;
 
+import org.apache.commons.io.monitor.FileAlterationListener;
 import org.greenrobot.eventbus.EventBus;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.IllegalFormatCodePointException;
 import java.util.List;
 
 import okhttp3.HttpUrl;
@@ -76,6 +84,7 @@ public class ModelSettingFragment extends BaseLazyFragment {
     private TextView appModelSelectText;
     private TextView tvRecStyleText;
     private TextView tvIjkCachePlay;
+    private TextView openTTSText;
 
     public static ModelSettingFragment newInstance() {
         return new ModelSettingFragment().setArguments();
@@ -117,6 +126,8 @@ public class ModelSettingFragment extends BaseLazyFragment {
         tvDebugOpen.setText(Hawk.get(HawkConfig.DEBUG_OPEN, false) ? "已打开" : "已关闭");
         tvParseWebView.setText(Hawk.get(HawkConfig.PARSE_WEBVIEW, true) ? "系统自带" : "XWalkView");
         tvApi.setText(Hawk.get(HawkConfig.API_URL, ""));
+        openTTSText = findViewById(R.id.openTTSText);
+        openTTSText.setText(Hawk.get(HawkConfig.TTS, false) ? "是" : "否");
 
         tvDns.setText(OkGoHelper.dnsHttpsList.get(Hawk.get(HawkConfig.DOH_URL, 0)));
         tvHomeRec.setText(getHomeRecName(Hawk.get(HawkConfig.HOME_REC, 0)));
@@ -651,16 +662,6 @@ public class ModelSettingFragment extends BaseLazyFragment {
                 tvRecStyleText.setText(Hawk.get(HawkConfig.HOME_REC_STYLE, false) ? "是" : "否");
             }
         });
-
-        
-//        LOG.e("开始语音转换");
-//        TextToSpeechUtils.getInstance().initTextToSpeech(mActivity);
-//        TextToSpeechUtils.getInstance().close();
-//        TextToSpeechUtils.getInstance().speak("开始虹膜注册");
-//        TextToSpeechUtils.getInstance().close();
-//        TextToSpeechUtils.getInstance().speak("spek in english");
-//        TextToSpeechUtils.getInstance().close();
-        LOG.e("语音有问题，无法播放，暂时关闭");
         findViewById(R.id.llSearchTv).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -742,6 +743,43 @@ public class ModelSettingFragment extends BaseLazyFragment {
         }).start();
         Toast.makeText(getContext(), "缓存已清空", Toast.LENGTH_LONG).show();
         return;
+        findViewById(R.id.openTTS).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                FastClickCheckUtil.check(v);
+                if (!Hawk.get(HawkConfig.TTS, false)){
+                    if (TTSService.getInstance().isSupport()){
+                        Hawk.put(HawkConfig.TTS, true);
+                        openTTSText.setText(Hawk.get(HawkConfig.TTS, false) ? "开启" : "关闭");
+                    }else if(TTSService.getInstance().isInstalled()){ //已安装应该是没有开无障碍
+                        // 跳转无障碍语音
+                        Intent intent = new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS);
+                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        startActivity(intent);
+                    }else{
+                        Toast.makeText(mContext, "注意: TTS安装只适用于部分Android手机没有自带TTS应用", Toast.LENGTH_LONG).show();
+                        TTSInitDialog dialog = new TTSInitDialog(mContext);
+                        dialog.setOnListener(new TTSInitDialog.OnListener() {
+                            @Override
+                            public void onchange() {
+                                ToolUtils.runOnUiThread(getActivity(), new Handler.Callback() {
+                                    @Override
+                                    public boolean handleMessage(@NonNull Message message) {
+                                        Hawk.put(HawkConfig.TTS, TTSService.getInstance().isCanUse());
+                                        openTTSText.setText(Hawk.get(HawkConfig.TTS, false) ? "开启" : "关闭");
+                                        return true;
+                                    }
+                                }, null);
+                            }
+                        });
+                        dialog.show();
+                    }
+                }else{
+                    Hawk.put(HawkConfig.TTS, false);
+                    openTTSText.setText(Hawk.get(HawkConfig.TTS, false) ? "开启" : "关闭");
+                }
+            }
+        });
     }
 
 

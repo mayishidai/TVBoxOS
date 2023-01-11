@@ -94,6 +94,7 @@ public class FastSearchActivity extends BaseActivity {
                     TextView v = (TextView) itemView;
                     String sb = v.getText().toString();
                     filterResult(sb);
+                    playTTS(v);
                 }
             } catch (Exception e) {
                 Toast.makeText(FastSearchActivity.this, e.toString(), Toast.LENGTH_SHORT).show();
@@ -144,6 +145,20 @@ public class FastSearchActivity extends BaseActivity {
         mGridViewWord.setLayoutManager(new V7LinearLayoutManager(this.mContext, 1, false));
         spListAdapter = new FastListAdapter();
         mGridViewWord.setAdapter(spListAdapter);
+        mGridViewWord.setOnItemListener(new TvRecyclerView.OnItemListener() {
+            @Override
+            public void onItemPreSelected(TvRecyclerView parent, View itemView, int position) {
+            }
+
+            @Override
+            public void onItemSelected(TvRecyclerView parent, View itemView, int position) {
+                playTTS(spListAdapter.getItem(position));
+            }
+
+            @Override
+            public void onItemClick(TvRecyclerView parent, View itemView, int position) {
+            }
+        });
 
 
 //        mGridViewWord.setFocusable(true);
@@ -182,6 +197,20 @@ public class FastSearchActivity extends BaseActivity {
 
         mGridView.setHasFixedSize(true);
         mGridView.setLayoutManager(new V7GridLayoutManager(this.mContext, 5));
+        mGridView.setOnItemListener(new TvRecyclerView.OnItemListener(){
+            @Override
+            public void onItemPreSelected(TvRecyclerView parent, View itemView, int position) {
+            }
+
+            @Override
+            public void onItemSelected(TvRecyclerView parent, View itemView, int position) {
+                playTTS(searchAdapter.getItem(position).name);
+            }
+
+            @Override
+            public void onItemClick(TvRecyclerView parent, View itemView, int position) {
+            }
+        });
 
         searchAdapter = new FastSearchAdapter();
         mGridView.setAdapter(searchAdapter);
@@ -213,6 +242,18 @@ public class FastSearchActivity extends BaseActivity {
         mGridViewFilter.setLayoutManager(new V7GridLayoutManager(this.mContext, 5));
         searchAdapterFilter = new FastSearchAdapter();
         mGridViewFilter.setAdapter(searchAdapterFilter);
+        mGridViewFilter.setOnItemListener(new TvRecyclerView.OnItemListener() {
+            @Override
+            public void onItemPreSelected(TvRecyclerView parent, View itemView, int position) {
+            }
+            @Override
+            public void onItemSelected(TvRecyclerView parent, View itemView, int position) {
+                playTTS(searchAdapterFilter.getItem(position).name);
+            }
+            @Override
+            public void onItemClick(TvRecyclerView parent, View itemView, int position) {
+            }
+        });
         searchAdapterFilter.setOnItemClickListener(new BaseQuickAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(BaseQuickAdapter adapter, View view, int position) {
@@ -243,6 +284,20 @@ public class FastSearchActivity extends BaseActivity {
         mGridViewWordFenci = findViewById(R.id.mGridViewWordFenci);
         mGridViewWordFenci.setAdapter(searchWordAdapter);
         mGridViewWordFenci.setLayoutManager(new V7LinearLayoutManager(this.mContext, 0, false));
+        mGridViewWordFenci.setOnItemListener(new TvRecyclerView.OnItemListener() {
+            @Override
+            public void onItemPreSelected(TvRecyclerView parent, View itemView, int position) {
+            }
+
+            @Override
+            public void onItemSelected(TvRecyclerView parent, View itemView, int position) {
+                playTTS(searchWordAdapter.getItem(position));
+            }
+
+            @Override
+            public void onItemClick(TvRecyclerView parent, View itemView, int position) {
+            }
+        });
         searchWordAdapter.setOnItemClickListener(new BaseQuickAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(BaseQuickAdapter adapter, View view, int position) {

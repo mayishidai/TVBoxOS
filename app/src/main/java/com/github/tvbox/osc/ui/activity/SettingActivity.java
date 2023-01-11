@@ -95,6 +95,7 @@ public class SettingActivity extends BaseActivity {
                     sortFocused = position;
                     TextView tvName = itemView.findViewById(R.id.tvName);
                     tvName.setTextColor(Color.WHITE);
+                    playTTS(tvName);
                 }
             }
 

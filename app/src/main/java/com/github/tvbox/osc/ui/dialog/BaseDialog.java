@@ -10,6 +10,7 @@ import android.view.WindowManager;
 import androidx.annotation.NonNull;
 
 import com.github.tvbox.osc.R;
+import com.github.tvbox.osc.util.TTSService;
 
 import xyz.doikki.videoplayer.util.CutoutUtil;
 
@@ -47,5 +48,15 @@ public class BaseDialog extends Dialog {
             uiOptions |= View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
             getWindow().getDecorView().setSystemUiVisibility(uiOptions);
         }
+    }
+
+    //播放文字转语音
+    public void playTTS(String text){
+        if (!text.isEmpty())
+            TTSService.getInstance().play(text);
+    }
+    public void playTTS(android.widget.TextView text){
+        if (text!=null)
+            TTSService.getInstance().play(text.getText().toString());
     }
 }

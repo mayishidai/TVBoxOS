@@ -38,6 +38,9 @@ public class SearchKeyboard extends FrameLayout {
         public void onFocusChange(View itemView, boolean hasFocus) {
             if (null != itemView && itemView != mRecyclerView) {
                 itemView.setSelected(hasFocus);
+                if (searchKeyListener != null) {
+                    searchKeyListener.OnFocusChange(itemView, hasFocus);
+                }
             }
         }
     };
@@ -149,5 +152,6 @@ public class SearchKeyboard extends FrameLayout {
 
     public interface OnSearchKeyListener {
         void onSearchKey(int pos, String key);
+        void OnFocusChange(View itemView, boolean hasFocus);
     }
 }
