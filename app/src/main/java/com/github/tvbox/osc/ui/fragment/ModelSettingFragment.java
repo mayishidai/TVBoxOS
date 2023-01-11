@@ -721,28 +721,6 @@ public class ModelSettingFragment extends BaseLazyFragment {
 
         findViewById(R.id.llIjkCachePlay).setOnClickListener((view -> onClickIjkCachePlay(view)));
         findViewById(R.id.llClearCache).setOnClickListener((view -> onClickClearCache(view)));
-    }
-
-    private void onClickIjkCachePlay(View v) {
-        FastClickCheckUtil.check(v);
-        Hawk.put(HawkConfig.IJK_CACHE_PLAY, !Hawk.get(HawkConfig.IJK_CACHE_PLAY, false));
-        tvIjkCachePlay.setText(Hawk.get(HawkConfig.IJK_CACHE_PLAY, false) ? "开启" : "关闭");
-    }
-
-    private void onClickClearCache(View v) {
-        FastClickCheckUtil.check(v);
-        String cachePath = FileUtils.getCachePath();
-        File cacheDir = new File(cachePath);
-        if (!cacheDir.exists()) return;
-        new Thread(() -> {
-            try {
-                FileUtils.cleanDirectory(cacheDir);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }).start();
-        Toast.makeText(getContext(), "缓存已清空", Toast.LENGTH_LONG).show();
-        return;
         findViewById(R.id.openTTS).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -780,6 +758,28 @@ public class ModelSettingFragment extends BaseLazyFragment {
                 }
             }
         });
+    }
+
+    private void onClickIjkCachePlay(View v) {
+        FastClickCheckUtil.check(v);
+        Hawk.put(HawkConfig.IJK_CACHE_PLAY, !Hawk.get(HawkConfig.IJK_CACHE_PLAY, false));
+        tvIjkCachePlay.setText(Hawk.get(HawkConfig.IJK_CACHE_PLAY, false) ? "开启" : "关闭");
+    }
+
+    private void onClickClearCache(View v) {
+        FastClickCheckUtil.check(v);
+        String cachePath = FileUtils.getCachePath();
+        File cacheDir = new File(cachePath);
+        if (!cacheDir.exists()) return;
+        new Thread(() -> {
+            try {
+                FileUtils.cleanDirectory(cacheDir);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }).start();
+        Toast.makeText(getContext(), "缓存已清空", Toast.LENGTH_LONG).show();
+        return;
     }
 
 
