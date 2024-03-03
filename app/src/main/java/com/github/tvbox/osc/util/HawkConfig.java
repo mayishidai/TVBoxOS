@@ -40,4 +40,5 @@ public class HawkConfig {
     public static final String REMOTE_TVBOX = "remote_tvbox_host";
     public static final String IJK_CACHE_PLAY = "ijk_cache_play";
     public static final String TTS = "TTS";
+    public static boolean hotVodDelete;
 }

@@ -187,16 +187,22 @@ public final class IjkMediaPlayer extends AbstractMediaPlayer {
             if (!mIsLibLoaded) {
                 if (libLoader == null)
                     libLoader = sLocalLibLoader;
-
                 try {
+                    //ff4
                     libLoader.loadLibrary("ijkffmpeg");
                     libLoader.loadLibrary("ijksdl");
-                } catch (Throwable throwable) {
+                    libLoader.loadLibrary("player");
+
+                    //ff5
+//                    libLoader.loadLibrary("ffmpeg");
+//                    libLoader.loadLibrary("exoffmpeg");
+//                    libLoader.loadLibrary("ijksdl");
+//                    libLoader.loadLibrary("ijkplayer");
+                } catch (Throwable ignored) {
 
                 }
-                libLoader.loadLibrary("player");
-                mIsLibLoaded = true;
 
+                mIsLibLoaded = true;
             }
         }
     }
@@ -431,7 +437,7 @@ public final class IjkMediaPlayer extends AbstractMediaPlayer {
                     sb.append(entry.getValue());
                 sb.append("\r\n");
                 setOption(OPT_CATEGORY_FORMAT, "headers", sb.toString());
-                setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "protocol_whitelist", "async,cache,crypto,file,http,https,ijkhttphook,ijkinject,ijklivehook,ijklongurl,ijksegment,ijktcphook,pipe,rtp,tcp,tls,udp,ijkurlhook,data");
+                setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "protocol_whitelist", "async,cache,crypto,file,dash,http,https,ijkhttphook,ijkinject,ijklivehook,ijklongurl,ijksegment,ijktcphook,pipe,rtp,tcp,tls,udp,ijkurlhook,data");
             }
         }
         setDataSource(path);
@@ -1043,8 +1049,21 @@ public final class IjkMediaPlayer extends AbstractMediaPlayer {
                     if (msg.obj == null) {
                         player.notifyOnTimedText(null);
                     } else {
-                        IjkTimedText text = new IjkTimedText(new Rect(0, 0, 1, 1), (String) msg.obj);
-                        player.notifyOnTimedText(text);
+                        if (msg.arg1 == 0) {// normal
+                            IjkTimedText text = new IjkTimedText(new Rect(0, 0, 1, 1), (String) msg.obj);
+                            player.notifyOnTimedText(text);
+                        } else if (msg.arg1 == 1) { // ass
+                            IjkTimedText text = new IjkTimedText(new Rect(0, 0, 1, 1), (String) msg.obj);
+                            player.notifyOnTimedText(text);
+                        } else if (msg.arg1 == 2) { // bitmap
+                            IjkTimedText text;
+                            if (msg.arg2 > 0 && msg.obj instanceof int[] && ((int[]) msg.obj).length == msg.arg2) {
+                                text = new IjkTimedText((int[]) msg.obj);
+                            } else {
+                                text = new IjkTimedText(null, "");
+                            }
+                            player.notifyOnTimedText(text);
+                        }
                     }
                     return;
                 case MEDIA_NOP: // interface test message - ignore

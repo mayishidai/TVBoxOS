@@ -12,6 +12,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import com.github.tvbox.osc.event.LogEvent;
+
+import org.greenrobot.eventbus.EventBus;
 
 /**
  * @author pj567
@@ -135,11 +138,11 @@ public class LOG {
         return null;
     }
 
-    public static void OpenLogcat(){
+    public static void OpenLogcat() {
         //第一个是Logcat ，也就是我们想要获取的log日志
         //第二个是 -s 也就是表示过滤的意思
         //第三个就是 我们要过滤的类型 W表示warm ，我们也可以换成 D ：debug， I：info，E：error等等
-        String[] running = new String[]{"logcat","-s","adb logcat *: D"};
+        String[] running = new String[]{"logcat", "-s", "adb logcat *: D"};
         try {
             Process exec = Runtime.getRuntime().exec(running);
             final InputStream inputS = exec.getInputStream();
@@ -148,7 +151,7 @@ public class LOG {
                 public void run() {
                     FileOutputStream os = null;
                     try {
-                        Log.e(TAG,"开始在线写入logcat, 目前有问题，记录不下来");
+                        Log.e(TAG, "开始在线写入logcat, 目前有问题，记录不下来");
                         //新建一个路径信息
                         os = new FileOutputStream(logcatFile);
                         int len = 0;
@@ -174,5 +177,34 @@ public class LOG {
         } catch (Exception e) {
             printStackTrace(e, "打开Logcat线程报错");
         }
+    }
+    public static void e(Throwable t) {
+        Log.e(TAG, t.getMessage(), t);
+        EventBus.getDefault().post(new LogEvent(String.format("E/%s ==> ", TAG) + Log.getStackTraceString(t)));
+    }
+
+    public static void e(String tag, Throwable t) {
+        Log.e(tag, t.getMessage(), t);
+        EventBus.getDefault().post(new LogEvent(String.format("E/%s ==> ", tag) + Log.getStackTraceString(t)));
+    }
+
+    public static void e(String msg) {
+        Log.e(TAG, "" + msg);
+        EventBus.getDefault().post(new LogEvent(String.format("E/%s ==> ", TAG) + msg));
+    }
+
+    public static void e(String tag, String msg) {
+        Log.e(tag, msg);
+        EventBus.getDefault().post(new LogEvent(String.format("E/%s ==> ", tag) + msg));
+    }
+
+    public static void i(String msg) {
+        Log.i(TAG, msg);
+        EventBus.getDefault().post(new LogEvent(String.format("I/%s ==> ", TAG) + msg));
+    }
+
+    public static void i(String tag, String msg) {
+        Log.i(tag, msg);
+        EventBus.getDefault().post(new LogEvent(String.format("I/%s ==> ", tag) + msg));
     }
 }
