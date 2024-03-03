@@ -4,19 +4,21 @@ import android.content.Context;
 import android.os.Environment;
 import android.text.TextUtils;
 import android.util.Base64;
+
 import com.github.tvbox.osc.base.App;
 import com.github.tvbox.osc.server.ControlManager;
-import com.github.tvbox.osc.util.StringUtils;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.lzy.okgo.OkGo;
 import com.lzy.okgo.model.HttpHeaders;
 import com.orhanobut.hawk.Hawk;
+
 import org.json.JSONObject;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
-import java.io.BufferedWriter;
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -238,34 +240,6 @@ public class FileUtils {
             e.printStackTrace();
         }
         return null;
-    }
-
-    public static void copyFile(File source, File dest) throws IOException {
-        InputStream is = null;
-        OutputStream os = null;
-        try {
-            is = new FileInputStream(source);
-            os = new FileOutputStream(dest);
-            byte[] buffer = new byte[1024];
-            int length;
-            while ((length = is.read(buffer)) > 0) {
-                os.write(buffer, 0, length);
-            }
-        } finally {
-            is.close();
-            os.close();
-        }
-    }
-
-    public static void recursiveDelete(File file) {
-        if (!file.exists())
-            return;
-        if (file.isDirectory()) {
-            for (File f : file.listFiles()) {
-                recursiveDelete(f);
-            }
-        }
-        file.delete();
     }
 
     public static void appendFile(File file, String content) {

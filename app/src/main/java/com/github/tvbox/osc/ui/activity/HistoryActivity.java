@@ -9,7 +9,6 @@ import android.widget.TextView;
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.github.tvbox.osc.R;
 import com.github.tvbox.osc.base.BaseActivity;
-import com.github.tvbox.osc.bean.Movie;
 import com.github.tvbox.osc.bean.VodInfo;
 import com.github.tvbox.osc.cache.RoomDataManger;
 import com.github.tvbox.osc.event.RefreshEvent;
@@ -74,10 +73,10 @@ public class HistoryActivity extends BaseActivity {
                 toggleDelMode();
             }
         });
-        tvDel.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+        tvDelete.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View view, boolean b) {
-                if (b) playTTS(tvDel);
+                if (b) playTTS("删除");
             }
         });
         tvClear.setOnClickListener(new View.OnClickListener() {
