@@ -43,8 +43,8 @@ public class App extends MultiDexApplication {
 
         super.onCreate();
         instance = this;
+        LOG.OpenSaveLog();
         RemoteConfig.Init(this);
-        // LOG.OpenSaveLog();
         initParams();
         // OKGo
         OkGoHelper.init(); //台标获取

@@ -20,7 +20,7 @@ import java.util.Date;
  */
 public class LOG {
     private static String TAG = "TVBox";
-    private static boolean isSaveLog = false;
+    private static boolean isSaveLog = true;
     private static int saveDay = 2;
     private static File file;
     private static File logcatFile;

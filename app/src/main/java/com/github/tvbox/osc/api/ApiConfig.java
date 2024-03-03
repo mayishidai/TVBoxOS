@@ -175,6 +175,7 @@ public class ApiConfig {
                     public void onSuccess(Response<String> response) {
                         try {
                             String json = response.body();
+//                            LOG.i("API配置加载成功：", apiUrl, json);
                             parseJson(apiUrl, json);
                             try {
                                 File cacheDir = cache.getParentFile();
